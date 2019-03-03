@@ -7,23 +7,18 @@ import {
     Button,
     Clipboard
 } from 'react-native';
-import db from '../db/db'
+import Vault from './Vault'
 
 export default class Parent extends React.Component {
 
     state = {
         masterPW: '',
         showPW: true,
-        dbReady: false
+        unlocked: false
     }
 
-    componentDidMount() {
-    this.setState({dbReady: true});
-      
-      }
- 
-    handleChange = ev => {
-        this.setState({masterPW: ev})
+    handleChange = txt => {
+        this.setState({masterPW: txt})
     }
 
     makeVisible = () => {
@@ -34,42 +29,26 @@ export default class Parent extends React.Component {
         })
     }
 
-    render() {
-        const {showPW, masterPW, dbReady} = this.state;
-
-        if (dbReady){
-            
-            const myNote = "\n*****************my note **************\n";
-
-            console.log(myNote + "db is ready!")
-
-            const callback = tx => {
-                const sqlStatement = "select * from items";
-                const args = [];
-                const suc2 = (tx, resultSet) =>{
-                    console.log(myNote + "suc2 fn, resultSet: ", resultSet)
-                }
-    
-                const err2 = (tx, e) => {
-                    console.log(myNote + "err2 fn, e: ", e)
-                }
-    
-                tx.executeSql(sqlStatement, args, suc2, err2)
-            };
-    
-            const error = e => {
-                console.log(myNote + "Error fn, e: ", e)
-            };
-    
-            const success = s => {
-                console.log(myNote + "success fn, s: ", s)
-            };
-    
-            db.transaction(callback, error, success)
+    tryUnlock = () => {
+        if (true){
+        //if (this.state.masterPW === "a") {
+            this.setState({unlocked: true})
         }
-       
+    }
+
+    lock = () => {
+        this.setState({unlocked: false})
+    }
+
+    render() {
+        const {showPW, masterPW, unlocked} = this.state;
+
+        if (unlocked) {
+            return <Vault lock={this.lock}/>
+        }
 
         return (
+
             <View style={styles.container}>
                 <Text style={styles.whiteTxt}>
                     Bonjour! 
@@ -84,6 +63,7 @@ export default class Parent extends React.Component {
                     placeholder="Say something..."/>
 
                 <Button onPress={this.makeVisible} title="Make visible"/>
+                <Button onPress={this.tryUnlock} title="Done"/>
             </View>
         );
     }
