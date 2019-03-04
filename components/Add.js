@@ -18,16 +18,17 @@ export default class Add extends React.Component {
         const {showScreen} = this.props;
 
         return (
-            <View>
-                <Text>
-                    Title?
-                </Text>
-
+            <View style={{
+                padding: 50,
+                paddingTop: 80
+            }}>
+              
                 <TextInput
+                    style={{fontSize: 25}}
                     name="title"
                     value={title}
                     onChangeText={this.handleChange}
-                    placeholder="Title"/>
+                    placeholder="Title of account"/>
 
                 <Button
                     onPress={() => {
@@ -36,14 +37,16 @@ export default class Add extends React.Component {
                     title="Cancel"/>
 
                 <Button
-                    onPress={ () => {
-                        const callback = insertId => {
-                            showScreen(screens.detail, {accountId: insertId, editable: true})
-                        }
-
+                    onPress={() => {
+                    const callback = insertId => {
+                        showScreen(screens.detail, {
+                            accountId: insertId,
+                            editable: true,
+                            accountTitle: title,
+                            isNew: true
+                        })
+                    }
                     accountApi.addAccount(title, callback);
-                    console.log("CODE IS AFTER API")
-                    
                 }}
                     title="Next"/>
             </View>

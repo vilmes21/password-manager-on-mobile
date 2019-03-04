@@ -35,6 +35,8 @@ const getAll = callback => {
     }, () => {})
 }
 
+
+
 export default {
     addAccount,
     getAll

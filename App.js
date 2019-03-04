@@ -7,8 +7,8 @@ import Vault from './components/Vault'
 export default class App extends React.Component {
   render() {
     return (
-      // <Parent />
-      <Vault />
+      <Parent style={{padding: 50}}/>
+      // <Vault />
     );
   }
 }

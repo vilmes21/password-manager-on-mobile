@@ -1,70 +1,218 @@
 import React from 'react';
-import {StyleSheet, Text, View, TextInput, Button} from 'react-native';
+import {
+    StyleSheet,
+    Text,
+    View,
+    TextInput,
+    Alert,
+    Button
+} from 'react-native';
 import screens from '../consts/screens'
+import detailApi from '../db/detailApi'
+import DetailItem from './DetailItem'
 
 export default class Detail extends React.Component {
     state = {
-        key: "",
-        value: ""
+        savedArr: [],
+        newRowArr: []
     }
 
-    handleChange = txt => {
-        this.setState({key: txt})
+    componentDidMount() {
+
+        const {isNew} = this.props.screenData;
+
+        if (isNew) {
+            this.addRow();
+            return;
+        }
+        this.getDetailsFromDB()
     }
 
-    handleChangeVal = txt => {
-        this.setState({value: txt})
+    getDetailsFromDB = () => {
+        const {accountId} = this.props.screenData;
+
+        const setStateDetail = savedArr => {
+            this.setState({savedArr})
+        }
+        detailApi.getDetailByAccountId(accountId, setStateDetail)
+    }
+
+    handleChangeGeneric = (index, name, txt) => {
+        const {newRowArr} = this.state;
+        const cloneArr = [];
+        for (let i = 0; i < newRowArr.length; i++) {
+            const obj = newRowArr[i];
+            if (i === index) {
+                cloneArr.push({
+                    ...obj,
+                    [name]: txt
+                })
+            } else {
+                cloneArr.push(obj)
+            }
+        }
+        this.setState({
+            newRowArr: cloneArr
+        }, () => {
+            console.log(this.state)
+        })
+    }
+
+    addRow = () => {
+        this.setState({
+            newRowArr: [
+                ...this.state.newRowArr, {
+                    key: "",
+                    value: ""
+                }
+            ]
+        })
+    }
+
+    showNewRows = newRowArr => {
+
+        if (newRowArr.length === 0) {
+            return null;
+        }
+
+        const {editable} = this.props.screenData;
+
+        return newRowArr.map((row, index) => {
+            return <DetailItem
+                editable={editable}
+                handleChange={this.handleChangeGeneric}
+                key={row.id || `i_${index}`}
+                index={index}
+                data={row}/>
+        })
+    }
+
+    saveRows = () => {
+        const {newRowArr, savedArr} = this.state;
+
+        const modifiedArr = savedArr.length > 0
+            ? savedArr.filter(x => x.modified)
+            : [];
+        const {screenData, toggleEditable} = this.props;
+        const {accountId, accountTitle} = screenData;
+
+        const toSend = {
+            accountId,
+            newRowArr: newRowArr.concat(modifiedArr)
+        }
+
+        const changedRowCount = toSend.newRowArr.length;
+
+        const afterSaveDo = () => {
+            this.getDetailsFromDB();
+            toggleEditable(false);
+            this.setState({
+                newRowArr: []
+            }, () => {
+                Alert.alert('Saved for: ' + accountTitle, changedRowCount + ' items', [
+                    {
+                        text: 'OK',
+                        onPress: () => {}
+                    }
+                ], {
+                    cancelable: true
+                },);
+            });
+        }
+        detailApi.saveMany(toSend, afterSaveDo)
+    }
+
+    modifyExisting = (detailId, name, txt) => {
+        const {savedArr} = this.state;
+        const cloneArr = [];
+        for (let i = 0; i < savedArr.length; i++) {
+            const obj = savedArr[i];
+            if (obj.id === detailId) {
+                cloneArr.push({
+                    ...obj,
+                    [name]: txt,
+                    modified: true
+                })
+            } else {
+                cloneArr.push(obj)
+            }
+        }
+        this.setState({
+            savedArr: cloneArr
+        }, () => {
+            console.log(this.state)
+        })
+    }
+
+    renderSavedRows = savedArr => {
+        if (savedArr.length === 0) {
+            return null;
+        }
+
+        const {editable} = this.props.screenData;
+
+        return savedArr.map(row => {
+            return <DetailItem
+                editable={editable}
+                handleChange={this.handleChangeGeneric}
+                key={row.id}
+                data={row}
+                modifyExisting={this.modifyExisting}/>
+        })
     }
 
     render() {
-        const {key, value} = this.props;
-        const {screenData, showScreen, makeEditable} = this.props;
-        const {accountId, editable} = screenData;
+        const {savedArr, newRowArr} = this.state;
+        const {screenData, showScreen, toggleEditable, cancelEdits, backupCurrent} = this.props;
+        const {isNew,accountId, editable, accountTitle} = screenData;
 
         return (
-            <View>
-                <Text>
-                    This is detail
+            <View style={{
+                paddingTop: 80
+            }}>
+                <Text
+                    style={{
+                    textAlign: "center",
+                    fontWeight: "bold",
+                    fontSize: 25
+                }}>
+                    Account - {accountId}. {accountTitle}
                 </Text>
 
-                <TextInput
-                    name="accountId"
-                    editable={false}
-                    value={accountId.toString()}
-                    placeholder="account id"/>
+                {editable || <Button
+                    onPress={() => {
+                    backupCurrent(() => {
+                        toggleEditable(true)
+                    });
+                }}
+                    title="Edit"/>}
 
-                <TextInput
-                    name="key"
-                    value={key}
-                    editable={editable}
-                    onChangeText={this.handleChange}
-                    placeholder="Say Username or Password Or?"/>
+                {editable && !isNew && <Button onPress={cancelEdits} title="Cancel edits"/>
+}
 
-                <TextInput
-                    name="value"
-                    value={value}
-                    editable={editable}
-                    onChangeText={this.handleChange}
-                    placeholder="Value"/>
+                {this.renderSavedRows(savedArr)}
 
-                <Button
+                {this.showNewRows(newRowArr)}
+
+                {editable && <Button onPress={this.addRow} title="Add row"/>
+}
+
+                <View style={{
+                    padding: 20
+                }}></View>
+
+                {editable || <Button
                     onPress={() => {
                     showScreen(screens.all)
                 }}
-                    title="Cancel"/>
+                    title="Back"/>}
 
                 <View style={{
-                    padding: 50
+                    padding: 20
                 }}></View>
 
-                <Button onPress={() => {}} title="Save"/>
+                {editable && <Button onPress={this.saveRows} title="Save"/>}
 
-
-                <View style={{
-                    padding: 50
-                }}></View>
-
-                {editable || <Button onPress={makeEditable} title="Edit"/>}
             </View>
         );
     }

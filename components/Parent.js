@@ -22,7 +22,7 @@ export default class Parent extends React.Component {
     }
 
     makeVisible = () => {
-        Clipboard.setString('hello je suis copier');
+        //Clipboard.setString('hello je suis copier');
 
         this.setState({
             showPW: !this.state.showPW
@@ -30,8 +30,8 @@ export default class Parent extends React.Component {
     }
 
     tryUnlock = () => {
-        if (true){
-        //if (this.state.masterPW === "a") {
+        if (true) {
+            //if (this.state.masterPW === "a") {
             this.setState({unlocked: true})
         }
     }
@@ -50,20 +50,23 @@ export default class Parent extends React.Component {
         return (
 
             <View style={styles.container}>
-                <Text style={styles.whiteTxt}>
-                    Bonjour! 
-                </Text>
-                <TextInput
-                    style={styles.whiteTxt}
-                    secureTextEntry={showPW}
-                    type="password"
-                    name="masterPW"
-                    value={masterPW}
-                    onChangeText={this.handleChange}
-                    placeholder="Say something..."/>
+                <View style={styles.content}>
 
-                <Button onPress={this.makeVisible} title="Make visible"/>
-                <Button onPress={this.tryUnlock} title="Done"/>
+                    <TextInput
+                        style={{
+                        fontSize: 25
+                    }}
+                        secureTextEntry={showPW}
+                        type="password"
+                        name="masterPW"
+                        value={masterPW}
+                        onChangeText={this.handleChange}
+                        placeholder="Say something..."/>
+
+                    <Button onPress={this.makeVisible} title="Visibility"/>
+                    <Button onPress={this.tryUnlock} title="Done"/>
+                </View>
+
             </View>
         );
     }
@@ -72,10 +75,11 @@ export default class Parent extends React.Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: 'black',
-        color: 'white',
-        // backgroundColor: '#fff',
-        alignItems: 'center',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    content: {
+        flexGrow: 1,
         justifyContent: 'center'
     },
     whiteTxt: {

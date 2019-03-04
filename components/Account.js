@@ -8,12 +8,23 @@ export default class Vault extends React.Component {
         const {showScreen} = this.props;
 
         return (
-            <View >
+            <View style={{
+                padding: 10,
+                borderBottomColor: "lightgrey",
+                borderStyle: "dotted",
+                borderWidth: 1
+            }}>
                 <TouchableOpacity
                     onPress={() => {
-                    console.log("PRESSED id: ", id);showScreen(screens.detail, {accountId: id, editable: false})
+                    console.log("PRESSED id: ", id);
+                    showScreen(screens.detail, {
+                        accountId: id,
+                        editable: false,
+                        accountTitle: title,
+                        isNew: false
+                    })
                 }}>
-                    <Text>
+                    <Text style={{fontSize: 30}}>
                         {id}. {title}
                     </Text>
                 </TouchableOpacity>
