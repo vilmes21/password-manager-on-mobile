@@ -8,7 +8,6 @@ export default class App extends React.Component {
   render() {
     return (
       <Parent style={{padding: 50}}/>
-      // <Vault />
     );
   }
 }

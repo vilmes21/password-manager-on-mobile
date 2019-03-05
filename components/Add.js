@@ -13,43 +13,79 @@ export default class Add extends React.Component {
         this.setState({title: txt})
     }
 
+    isStringBad = title => {
+        if (!title) {
+            return true;
+        }
+
+        if (title.replace(/\s/g, "")) {
+            return false;
+        }
+
+        return true;
+    }
+
     render() {
         const {title} = this.state;
         const {showScreen} = this.props;
+        const disableNext = this.isStringBad(title);
 
         return (
-            <View style={{
-                padding: 50,
-                paddingTop: 80
-            }}>
-              
-                <TextInput
-                    style={{fontSize: 25}}
-                    name="title"
-                    value={title}
-                    onChangeText={this.handleChange}
-                    placeholder="Title of account"/>
+            <View style={styles.container}>
+                <View style={styles.content}>
+                    <TextInput
+                        style={{
+                        fontSize: 25
+                    }}
+                        name="title"
+                        value={title}
+                        autoFocus={true}
+                        onChangeText={this.handleChange}
+                        placeholder="Title of account, e.g. Facebook"/>
+                </View>
 
-                <Button
-                    onPress={() => {
-                    showScreen(screens.all)
-                }}
-                    title="Cancel"/>
+                <View
+                    style={{
+                    position: "absolute",
+                    bottom: 30
+                }}>
+                    <Button
+                        onPress={() => {
+                        showScreen(screens.all)
+                    }}
+                        title="Cancel"/>
 
-                <Button
-                    onPress={() => {
-                    const callback = insertId => {
-                        showScreen(screens.detail, {
-                            accountId: insertId,
-                            editable: true,
-                            accountTitle: title,
-                            isNew: true
-                        })
-                    }
-                    accountApi.addAccount(title, callback);
-                }}
-                    title="Next"/>
+                    <Button
+                        disabled={disableNext}
+                        onPress={() => {
+                        const callback = insertId => {
+                            showScreen(screens.detail, {
+                                accountId: insertId,
+                                editable: true,
+                                accountTitle: title,
+                                isNew: true
+                            })
+                        }
+                        accountApi.addAccount(title, callback);
+                    }}
+                        title="Next"/>
+                </View>
             </View>
         );
     }
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    content: {
+        flexGrow: 1,
+        justifyContent: 'center'
+    },
+    whiteTxt: {
+        color: 'white'
+    }
+});

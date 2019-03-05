@@ -2,7 +2,7 @@ import React from 'react';
 import screens from '../consts/screens'
 import {StyleSheet, Text, View, Button, TouchableOpacity} from 'react-native';
 
-export default class Vault extends React.Component {
+export default class Account extends React.Component {
     render() {
         const {id, title} = this.props.data;
         const {showScreen} = this.props;

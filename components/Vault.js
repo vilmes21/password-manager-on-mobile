@@ -1,27 +1,25 @@
 import React from 'react';
-import {StyleSheet,Alert, Text, View, Button} from 'react-native';
+import {
+    StyleSheet,
+    ScrollView,
+    Alert,
+    Text,
+    View,
+    Button
+} from 'react-native';
 import Add from './Add'
 import Detail from './Detail'
+import Accounts from './Accounts'
 import Account from './Account'
 import screens from '../consts/screens'
 import accountApi from '../db/accountApi'
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 export default class Vault extends React.Component {
     state = {
         screenNow: screens.all,
-        screenData: null,
-        accounts: []
+        screenData: null
     }
-
-    componentDidMount() {
-        const setStateAccounts = accountArr => {
-            this.setState({accounts: accountArr})
-        }
-
-        accountApi.getAll(setStateAccounts)
-    }
-
-    backupCurrent = () =>{}
 
     showScreen = (screenNow, screenData) => {
         this.setState({screenNow, screenData})
@@ -44,35 +42,24 @@ export default class Vault extends React.Component {
         return accounts.map(x => <Account key={x.id} data={x} showScreen={this.showScreen}/>)
     }
 
-    cancelEdits = () => {
-        Alert.alert('Giving up edits?', 'If so, data will be the same as before you clicked "Edit".', [
-            {
-                text: 'Give up edits',
-                onPress: () => {this.toggleEditable(false)}
-            },
-            {
-                text: 'Keep editing',
-                onPress: () => {}
-            }
-        ], {
-            cancelable: true
-        },);
-    }
+  
 
     render() {
         const {screenNow, screenData, accounts} = this.state;
+        const {lock}=this.props;
 
         if (screenNow === screens.add) {
             return <Add showScreen={this.showScreen}/>
         } else if (screenNow === screens.detail) {
             return <Detail
-            backupCurrent={this.backupCurrent}
+            lock={lock}
                 showScreen={this.showScreen}
                 screenData={screenData}
                 toggleEditable={this.toggleEditable}
-                cancelEdits={this.cancelEdits}
                 />
         }
+
+
 
         return (
             <View style={{
@@ -88,15 +75,35 @@ export default class Vault extends React.Component {
                     My Vault
                 </Text>
 
-                {this.showList(accounts)}
+                <ScrollView
+                    style={{
+                    marginTop: 20,
+                    marginBottom: 40
+                }}>
+                    <Accounts showScreen={this.showScreen}/>
+                </ScrollView>
 
-                <Button
-                    onPress={() => {
-                    this.showScreen(screens.add)
-                }}
-                    title="Add"/>
+                <View
+                    style={{
+                    marginBottom: 30,
+                    flexDirection: 'row',
+                    justifyContent: 'flex-end',
+                    position: 'absolute',
+                    top: 45,
+                    right: 10
+                }}>
+                   
+                    <Icon
+                        name="plus"
+                        size={30}
+                        color="grey"
+                        onPress={() => {
+                        this.showScreen(screens.add)
+                    }}/>
 
-                <Button onPress={this.props.lock} title="Lock"/>
+                    <Icon name="lock" size={30} color="grey" onPress={lock}/>
+
+                </View>
             </View>
         );
     }

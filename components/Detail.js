@@ -5,16 +5,38 @@ import {
     View,
     TextInput,
     Alert,
-    Button
+    Button,
+    ScrollView
 } from 'react-native';
 import screens from '../consts/screens'
 import detailApi from '../db/detailApi'
 import DetailItem from './DetailItem'
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 export default class Detail extends React.Component {
     state = {
         savedArr: [],
-        newRowArr: []
+        newRowArr: [],
+        beforeEditArr: [],
+        hasMadeEdits: false
+    }
+
+    backupBeforeEdit = callback => {
+        const beforeEditArr = [];
+        const {savedArr} = this.state;
+        for (const obj of savedArr) {
+            beforeEditArr.push({
+                ...obj
+            });
+        }
+        this.setState({
+            beforeEditArr
+        }, callback)
+    }
+
+    restoreBeforeEdit = () => {
+        const {beforeEditArr} = this.state;
+        this.setState({savedArr: beforeEditArr})
     }
 
     componentDidMount() {
@@ -51,18 +73,14 @@ export default class Detail extends React.Component {
                 cloneArr.push(obj)
             }
         }
-        this.setState({
-            newRowArr: cloneArr
-        }, () => {
-            console.log(this.state)
-        })
+        this.setState({hasMadeEdits: true, newRowArr: cloneArr})
     }
 
     addRow = () => {
         this.setState({
             newRowArr: [
                 ...this.state.newRowArr, {
-                    key: "",
+                    key: "Username",
                     value: ""
                 }
             ]
@@ -75,16 +93,21 @@ export default class Detail extends React.Component {
             return null;
         }
 
-        const {editable} = this.props.screenData;
+        const {editable, isNew} = this.props.screenData;
 
-        return newRowArr.map((row, index) => {
-            return <DetailItem
-                editable={editable}
-                handleChange={this.handleChangeGeneric}
-                key={row.id || `i_${index}`}
-                index={index}
-                data={row}/>
-        })
+        return (
+            <ScrollView>
+                {newRowArr.map((row, index) => {
+                    return <DetailItem
+                        isNew={isNew}
+                        editable={editable}
+                        handleChange={this.handleChangeGeneric}
+                        key={row.id || `i_${index}`}
+                        index={index}
+                        data={row}/>
+                })}
+            </ScrollView>
+        )
     }
 
     saveRows = () => {
@@ -138,9 +161,8 @@ export default class Detail extends React.Component {
             }
         }
         this.setState({
+            hasMadeEdits: true,
             savedArr: cloneArr
-        }, () => {
-            console.log(this.state)
         })
     }
 
@@ -153,6 +175,7 @@ export default class Detail extends React.Component {
 
         return savedArr.map(row => {
             return <DetailItem
+                isNew={false}
                 editable={editable}
                 handleChange={this.handleChangeGeneric}
                 key={row.id}
@@ -161,51 +184,104 @@ export default class Detail extends React.Component {
         })
     }
 
+    cancelEdits = () => {
+        const {hasMadeEdits} = this.state;
+        const {toggleEditable} = this.props;
+
+        console.log("2222222 hasMadeEdits: ", hasMadeEdits)
+        
+        if (!hasMadeEdits) {
+            toggleEditable(false);
+            return;
+        }
+
+        Alert.alert('Giving up edits?', 'If so, data will be the same as before you clicked "Edit".', [
+            {
+                text: 'Give up edits',
+                onPress: () => {
+                    this.restoreBeforeEdit();
+                    toggleEditable(false);
+                }
+            }, {
+                text: 'Keep editing',
+                onPress: () => {}
+            }
+        ], {cancelable: true});
+    }
+
     render() {
         const {savedArr, newRowArr} = this.state;
-        const {screenData, showScreen, toggleEditable, cancelEdits, backupCurrent} = this.props;
-        const {isNew,accountId, editable, accountTitle} = screenData;
+        const {screenData, showScreen, toggleEditable, lock} = this.props;
+        const {isNew, accountId, editable, accountTitle} = screenData;
 
         return (
-            <View style={{
-                paddingTop: 80
+            <View
+                style={{
+                paddingTop: 80,
+                paddingRight: 20,
+                paddingLeft: 20
             }}>
-                <Text
+
+                <View
                     style={{
-                    textAlign: "center",
-                    fontWeight: "bold",
-                    fontSize: 25
+                    display: "flex",
+                    flexDirection: 'row',
+                    justifyContent: 'space-between'
                 }}>
-                    Account - {accountId}. {accountTitle}
-                </Text>
 
-                {editable || <Button
-                    onPress={() => {
-                    backupCurrent(() => {
-                        toggleEditable(true)
-                    });
-                }}
-                    title="Edit"/>}
+                    {editable || <Icon
+                        name="home"
+                        size={30}
+                        color="grey"
+                        onPress={() => {
+                        showScreen(screens.all)
+                    }}/>}
 
-                {editable && !isNew && <Button onPress={cancelEdits} title="Cancel edits"/>
+                    {editable || <Icon name="lock" size={30} color="grey" onPress={lock}/>}
+
+                </View>
+
+                <View
+                    style={{
+                    display: "flex",
+                    flexDirection: 'row',
+                    justifyContent: 'space-around',
+                    paddingTop: 10,
+                    paddingBottom: 35
+                }}>
+                    <View>
+                        <Text
+                            style={{
+                            textAlign: "center",
+                            fontWeight: "bold",
+                            fontSize: 25
+                        }}>
+                            Account - {accountId}. {accountTitle}
+                        </Text>
+                    </View>
+
+                    <View>
+                        {editable || <Icon
+                            name="pencil"
+                            size={30}
+                            color="grey"
+                            onPress={() => {
+                            this.backupBeforeEdit(() => {
+                                toggleEditable(true)
+                            });
+                        }}/>}
+
+                        {editable && !isNew && <Button onPress={this.cancelEdits} title="Cancel edits"/>
 }
+                    </View>
+                </View>
 
                 {this.renderSavedRows(savedArr)}
 
                 {this.showNewRows(newRowArr)}
 
-                {editable && <Button onPress={this.addRow} title="Add row"/>
+                {editable && <Icon name="plus" size={30} color="grey" onPress={this.addRow}/>
 }
-
-                <View style={{
-                    padding: 20
-                }}></View>
-
-                {editable || <Button
-                    onPress={() => {
-                    showScreen(screens.all)
-                }}
-                    title="Back"/>}
 
                 <View style={{
                     padding: 20

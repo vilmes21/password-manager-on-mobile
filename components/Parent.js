@@ -8,6 +8,7 @@ import {
     Clipboard
 } from 'react-native';
 import Vault from './Vault'
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 export default class Parent extends React.Component {
 
@@ -22,8 +23,6 @@ export default class Parent extends React.Component {
     }
 
     makeVisible = () => {
-        //Clipboard.setString('hello je suis copier');
-
         this.setState({
             showPW: !this.state.showPW
         })
@@ -32,7 +31,7 @@ export default class Parent extends React.Component {
     tryUnlock = () => {
         if (true) {
             //if (this.state.masterPW === "a") {
-            this.setState({unlocked: true})
+            this.setState({unlocked: true, masterPW: ""})
         }
     }
 
@@ -52,18 +51,46 @@ export default class Parent extends React.Component {
             <View style={styles.container}>
                 <View style={styles.content}>
 
-                    <TextInput
+                    <View
                         style={{
-                        fontSize: 25
-                    }}
-                        secureTextEntry={showPW}
-                        type="password"
-                        name="masterPW"
-                        value={masterPW}
-                        onChangeText={this.handleChange}
-                        placeholder="Say something..."/>
+                        display: "flex",
+                        flexDirection: 'row',
+                        justifyContent: 'center',
+                        paddingBottom: 10
+                    }}>
+                        <Icon name="lock" size={150} color="grey"/>
+                    </View>
 
-                    <Button onPress={this.makeVisible} title="Visibility"/>
+                    <View
+                        style={{
+                        display: "flex",
+                        flexDirection: 'row',
+                        justifyContent: 'center'
+                    }}>
+
+                        <TextInput
+                            style={{
+                            fontSize: 25
+                        }}
+                            secureTextEntry={showPW}
+                            type="password"
+                            name="masterPW"
+                            value={masterPW}
+                            onChangeText={this.handleChange}
+                            placeholder="Say something..."/>
+
+                        <Icon
+                            style={{
+                            marginLeft: 25
+                        }}
+                            name={showPW
+                            ? "eye"
+                            : "eye-slash"}
+                            size={30}
+                            color="grey"
+                            onPress={this.makeVisible}/>
+                    </View>
+
                     <Button onPress={this.tryUnlock} title="Done"/>
                 </View>
 
