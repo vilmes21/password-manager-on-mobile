@@ -4,12 +4,15 @@ import {
     StyleSheet,
     TextInput,
     Text,
+    TouchableOpacity,
     View,
-    Button
+    Button,
+    Alert
 } from 'react-native';
 import FlashMessage from "react-native-flash-message";
 import {showMessage, hideMessage} from "react-native-flash-message";
 import Icon from 'react-native-vector-icons/FontAwesome';
+import detailApi from '../db/detailApi'
 
 export default class DetailItem extends React.Component {
     state = {
@@ -29,6 +32,35 @@ export default class DetailItem extends React.Component {
         this.setState({
             visible: !this.state.visible
         })
+    }
+
+    confirmDeleteDetail = () => {
+        const {data, rmItemFromNewArr, rmItemFromSavedArr, markEditsMade} = this.props;
+        const {key, id} = data;
+
+        Alert.alert(`Delete ${key}?`, `Once done, it cannot be recoverd.`, [
+            {
+                text: 'Delete',
+                onPress: () => {
+
+                    markEditsMade()
+                    const afterDeleteDo = () => {
+                        rmItemFromSavedArr(id);
+                    };
+
+                    // it is currenlty in db
+                    if (id) {
+                        detailApi.deleteDetail(id, afterDeleteDo);
+                    } else {
+                        rmItemFromNewArr(data);
+                    }
+
+                }
+            }, {
+                text: 'No',
+                onPress: () => {}
+            }
+        ], {cancelable: true});
     }
 
     render() {
@@ -56,15 +88,21 @@ export default class DetailItem extends React.Component {
                         justifyContent: 'space-between',
                         paddingBottom: 10
                     }}>
-                        <View>
+                        <View
+                            style={{
+                            display: "flex",
+                            flexDirection: 'row',
+                            justifyContent: 'flex-start'
+                        }}>
                             <TextInput
                                 style={{
-                                fontSize: 25
+                                fontSize: 25,
+                                paddingRight: 30
                             }}
                                 name="key"
                                 value={data.key}
                                 editable={editable}
-                                autoFocus={editable && true}
+                                autoFocus={editable}
                                 onChangeText={txt => {
                                 if (data.id) {
                                     modifyExisting(data.id, "key", txt)
@@ -72,8 +110,28 @@ export default class DetailItem extends React.Component {
                                     handleChange(index, "key", txt)
                                 }
                             }}
-                                placeholder="Label"/>
+                                placeholder="Label"/> 
+                                
+                                
+                                {
+                                    editable && 
+                                    
+                                    <TouchableOpacity
+                                    style={{
+                                        position: "relative",
+                                        top: 8
+                                    }}
+                                    onLongPress={this.confirmDeleteDetail}>
+                                    <Icon
+                               
+                                name="minus-circle"
+                                size={15}
+                                color="red"
+                                />
+                                </TouchableOpacity>
+                                }
                         </View>
+
                         <View>
                             <Icon
                                 name={visible
@@ -93,7 +151,11 @@ export default class DetailItem extends React.Component {
                         justifyContent: 'space-between'
                     }}>
 
-                        {!isNew && !editable && <View>
+                        {
+                            !isNew 
+                            && 
+                            !editable && 
+                        <View>
                             <Icon
                                 name="copy"
                                 size={30}

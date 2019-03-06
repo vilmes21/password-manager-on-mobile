@@ -24,6 +24,28 @@ export default class Detail extends React.Component {
         hasMadeEdits: false
     }
 
+    rmItemFromNewArr = obj => {
+        this.setState({
+            newRowArr: this
+                .state
+                .newRowArr
+                .filter(x => x !== obj)
+        })
+    }
+
+    rmItemFromSavedArr = id => {
+        this.setState({
+            savedArr: this
+                .state
+                .savedArr
+                .filter(x => x.id !== id)
+        })
+    }
+
+    markEditsMade = () => {
+        this.setState({hasMadeEdits: true})
+    }
+
     backupBeforeEdit = callback => {
         const beforeEditArr = [];
         const {savedArr} = this.state;
@@ -86,7 +108,8 @@ export default class Detail extends React.Component {
                     key: "Username",
                     value: ""
                 }
-            ]
+            ],
+            hasMadeEdits: true
         })
     }
 
@@ -100,6 +123,9 @@ export default class Detail extends React.Component {
 
         return newRowArr.map((row, index) => {
             return <DetailItem
+                markEditsMade={this.markEditsMade}
+                rmItemFromNewArr={this.rmItemFromNewArr}
+                rmItemFromSavedArr={this.rmItemFromSavedArr}
                 isNew={isNew}
                 editable={editable}
                 handleChange={this.handleChangeGeneric}
@@ -125,11 +151,23 @@ export default class Detail extends React.Component {
 
         const changedRowCount = toSend.newRowArr.length;
 
+        if (changedRowCount === 0){
+            this.getDetailsFromDB();
+            toggleEditable(false);
+            this.setState({
+                newRowArr: [],
+                hasMadeEdits: false
+            })
+            //since 0 item no need to alert
+            return;
+        }
+
         const afterSaveDo = () => {
             this.getDetailsFromDB();
             toggleEditable(false);
             this.setState({
-                newRowArr: []
+                newRowArr: [],
+                hasMadeEdits: false
             }, () => {
                 Alert.alert(`Saved for: ${accountTitle}`, `${changedRowCount} item${changedRowCount > 1
                     ? "s"
@@ -173,6 +211,9 @@ export default class Detail extends React.Component {
 
         return savedArr.map(row => {
             return <DetailItem
+                markEditsMade={this.markEditsMade}
+                rmItemFromNewArr={this.rmItemFromNewArr}
+                rmItemFromSavedArr={this.rmItemFromSavedArr}
                 isNew={false}
                 editable={editable}
                 handleChange={this.handleChangeGeneric}
@@ -233,7 +274,7 @@ export default class Detail extends React.Component {
     }
 
     render() {
-        const {savedArr, newRowArr} = this.state;
+        const {savedArr, newRowArr, hasMadeEdits} = this.state;
         const {screenData, showScreen, toggleEditable, lock} = this.props;
         const {isNew, accountId, editable, accountTitle} = screenData;
 
@@ -290,7 +331,7 @@ export default class Detail extends React.Component {
                             color="grey"
                             onPress={() => {
                             this.backupBeforeEdit(() => {
-                                toggleEditable(true)
+                                toggleEditable(true);
                             });
                         }}/>}
 
@@ -321,9 +362,9 @@ export default class Detail extends React.Component {
                     padding: 20
                 }}></View>
 
-                {editable && <Button onPress={this.saveRows} title="Save"/>}
+                {editable && <Button disabled={!hasMadeEdits} onPress={this.saveRows} title="Save"/>}
 
-                {editable || <TouchableOpacity
+                {editable && <TouchableOpacity
                     onLongPress={this.confirmDeleteAccount}
                     style={{
                     position: "absolute",

@@ -58,5 +58,19 @@ const saveMany = (objWithNewRows, callback)=>{
     }, callback)
 }
 
+const deleteDetail = (detailId, afterDeleteDo) => {
+    const fnName = " <deleteDetail fn> detailId: " + detailId;
 
-export default {getDetailByAccountId, saveMany}
+    db.transaction(tx => {
+        tx.executeSql(`delete from detail where id=${detailId} `, [], (_, returned) => {
+            console.log(myNote + fnName + " succeeded, returned: ", returned);
+        }, e => {
+            console.log(myNote + fnName + "executeSql err fn, e: ", e)
+        });
+    }, e => {
+        console.log(myNote + fnName + "err fn, e: ", e)
+    }, afterDeleteDo)
+}
+
+
+export default {getDetailByAccountId, saveMany, deleteDetail}
