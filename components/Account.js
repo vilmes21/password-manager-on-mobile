@@ -8,12 +8,7 @@ export default class Account extends React.Component {
         const {showScreen} = this.props;
 
         return (
-            <View style={{
-                padding: 10,
-                borderBottomColor: "lightgrey",
-                borderStyle: "dotted",
-                borderWidth: 1
-            }}>
+            <View>
                 <TouchableOpacity
                     onPress={() => {
                     console.log("PRESSED id: ", id);

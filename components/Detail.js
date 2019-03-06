@@ -5,13 +5,16 @@ import {
     View,
     TextInput,
     Alert,
+    TouchableOpacity,
     Button,
     ScrollView
 } from 'react-native';
 import screens from '../consts/screens'
 import detailApi from '../db/detailApi'
+import mixedApi from '../db/mixedApi'
 import DetailItem from './DetailItem'
 import Icon from 'react-native-vector-icons/FontAwesome';
+import {showMessage, hideMessage} from "react-native-flash-message";
 
 export default class Detail extends React.Component {
     state = {
@@ -132,7 +135,9 @@ export default class Detail extends React.Component {
             this.setState({
                 newRowArr: []
             }, () => {
-                Alert.alert('Saved for: ' + accountTitle, changedRowCount + ' items', [
+                Alert.alert(`Saved for: ${accountTitle}`, `${changedRowCount} item${changedRowCount > 1
+                    ? "s"
+                    : ""}`, [
                     {
                         text: 'OK',
                         onPress: () => {}
@@ -160,10 +165,7 @@ export default class Detail extends React.Component {
                 cloneArr.push(obj)
             }
         }
-        this.setState({
-            hasMadeEdits: true,
-            savedArr: cloneArr
-        })
+        this.setState({hasMadeEdits: true, savedArr: cloneArr})
     }
 
     renderSavedRows = savedArr => {
@@ -189,7 +191,7 @@ export default class Detail extends React.Component {
         const {toggleEditable} = this.props;
 
         console.log("2222222 hasMadeEdits: ", hasMadeEdits)
-        
+
         if (!hasMadeEdits) {
             toggleEditable(false);
             return;
@@ -209,17 +211,43 @@ export default class Detail extends React.Component {
         ], {cancelable: true});
     }
 
+    confirmDeleteAccount = () => {
+        const {screenData, showScreen} = this.props;
+        const {isNew, accountId, editable, accountTitle} = screenData;
+        const {savedArr} = this.state;
+        const savedArrLen = savedArr.length;
+
+        Alert.alert(`Delete ${accountTitle}?`, `${savedArrLen > 1
+            ? "All "
+            : ""}${savedArrLen} item ${savedArr > 1
+                ? "s"
+                : ""} under ${accountTitle} will be deleted.`, [
+            {
+                text: 'Delete',
+                onPress: () => {
+                    const afterDeleteDo = () => {
+                        showScreen(screens.all);
+                        showMessage({message: `${accountTitle} deleted`, type: "success"});
+                    };
+                    mixedApi.deleteAccountCascade(accountId, afterDeleteDo);
+                }
+            }, {
+                text: 'No',
+                onPress: () => {}
+            }
+        ], {cancelable: true});
+    }
+
     render() {
         const {savedArr, newRowArr} = this.state;
         const {screenData, showScreen, toggleEditable, lock} = this.props;
         const {isNew, accountId, editable, accountTitle} = screenData;
 
         return (
-            <View
-                style={{
-                paddingTop: 80,
-                paddingRight: 20,
-                paddingLeft: 20
+            <View style={{
+                flex: 1,
+                flexDirection: "column",
+                alignContent: "flex-start"
             }}>
 
                 <View
@@ -246,8 +274,6 @@ export default class Detail extends React.Component {
                     display: "flex",
                     flexDirection: 'row',
                     justifyContent: 'space-around',
-                    paddingTop: 10,
-                    paddingBottom: 35
                 }}>
                     <View>
                         <Text
@@ -288,6 +314,16 @@ export default class Detail extends React.Component {
                 }}></View>
 
                 {editable && <Button onPress={this.saveRows} title="Save"/>}
+
+                <TouchableOpacity
+                    onLongPress={this.confirmDeleteAccount}
+                    style={{
+                    position: "absolute",
+                    bottom: 20,
+                    left: 20
+                }}>
+                    <Icon name="trash" size={15} color="red"/>
+                </TouchableOpacity>
 
             </View>
         );

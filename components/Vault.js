@@ -42,29 +42,22 @@ export default class Vault extends React.Component {
         return accounts.map(x => <Account key={x.id} data={x} showScreen={this.showScreen}/>)
     }
 
-  
-
     render() {
         const {screenNow, screenData, accounts} = this.state;
-        const {lock}=this.props;
+        const {lock} = this.props;
 
         if (screenNow === screens.add) {
             return <Add showScreen={this.showScreen}/>
         } else if (screenNow === screens.detail) {
             return <Detail
-            lock={lock}
+                lock={lock}
                 showScreen={this.showScreen}
                 screenData={screenData}
-                toggleEditable={this.toggleEditable}
-                />
+                toggleEditable={this.toggleEditable}/>
         }
 
-
-
         return (
-            <View style={{
-                padding: 50
-            }}>
+            <View>
 
                 <Text
                     style={{
@@ -92,7 +85,7 @@ export default class Vault extends React.Component {
                     top: 45,
                     right: 10
                 }}>
-                   
+
                     <Icon
                         name="plus"
                         size={30}

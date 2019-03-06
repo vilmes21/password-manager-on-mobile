@@ -41,99 +41,98 @@ export default class DetailItem extends React.Component {
             isNew
         } = this.props;
 
-         
         const {visible} = this.state;
 
         return (
-            <View
-                style={{
-                paddingLeft: 20,
-                paddingRight: 20
+            <View style={{
+                flex: 1
             }}>
 
-                <View
-                    style={{
-                    display: "flex",
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    paddingBottom: 10
-                }}>
-                    <View>
-                        <TextInput
-                            style={{
-                            fontSize: 25
-                        }}
-                            name="key"
-                            value={data.key}
-                            editable={editable}
-                            autoFocus = {editable && true}
-                            onChangeText={txt => {
-                            if (data.id) {
-                                modifyExisting(data.id, "key", txt)
-                            } else {
-                                handleChange(index, "key", txt)
-                            }
-                        }}
-                            placeholder="Label"/>
-                    </View>
-                    <View>
-                        <Icon
-                            name={visible
-                            ? "eye-slash"
-                            : "eye"}
-                            size={30}
-                            color="grey"
-                            onPress={this.toggleEye}/>
+                <View>
+                    <View
+                        style={{
+                        display: "flex",
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        paddingBottom: 10
+                    }}>
+                        <View>
+                            <TextInput
+                                style={{
+                                fontSize: 25
+                            }}
+                                name="key"
+                                value={data.key}
+                                editable={editable}
+                                autoFocus={editable && true}
+                                onChangeText={txt => {
+                                if (data.id) {
+                                    modifyExisting(data.id, "key", txt)
+                                } else {
+                                    handleChange(index, "key", txt)
+                                }
+                            }}
+                                placeholder="Label"/>
+                        </View>
+                        <View>
+                            <Icon
+                                name={visible
+                                ? "eye-slash"
+                                : "eye"}
+                                size={30}
+                                color="grey"
+                                onPress={this.toggleEye}/>
+                        </View>
+
                     </View>
 
+                    <View
+                        style={{
+                        display: "flex",
+                        flexDirection: 'row',
+                        justifyContent: 'space-between'
+                    }}>
+
+                        {!isNew && !editable && <View>
+                            <Icon
+                                name="copy"
+                                size={30}
+                                color="grey"
+                                onPress={this.clipCopy}
+                                title="Copy to clipboard"/>
+                        </View>}
+
+                        <View>
+                            <TextInput
+                                style={{
+                                fontSize: 25
+                            }}
+                                name="value"
+                                secureTextEntry={!visible}
+                                value={data.value}
+                                editable={editable}
+                                onChangeText={txt => {
+                                if (data.id) {
+                                    modifyExisting(data.id, "value", txt)
+                                } else {
+                                    handleChange(index, "value", txt)
+                                }
+                            }}
+                                placeholder="Value"/>
+                        </View>
+
+                    </View>
+
+                    <View
+                        style={{
+                        borderBottomColor: 'lightgrey',
+                        borderBottomWidth: 1,
+                        marginTop: 20,
+                        marginBottom: 20
+                    }}/>
+
+                    <FlashMessage position="top" ref="detailItemFlash"/>
                 </View>
-
-                <View
-                    style={{
-                    display: "flex",
-                    flexDirection: 'row',
-                    justifyContent: 'space-between'
-                }}>
-
-                    {!isNew && !editable && <View>
-                        <Icon
-                            name="copy"
-                            size={30}
-                            color="grey"
-                            onPress={this.clipCopy}
-                            title="Copy to clipboard"/>
-                    </View>}
-
-                    <View>
-                        <TextInput
-                            style={{
-                            fontSize: 25
-                        }}
-                            name="value"
-                            secureTextEntry={!visible}
-                            value={data.value}
-                            editable={editable}
-                            onChangeText={txt => {
-                            if (data.id) {
-                                modifyExisting(data.id, "value", txt)
-                            } else {
-                                handleChange(index, "value", txt)
-                            }
-                        }}
-                            placeholder="Value"/>
-                    </View>
-
-                </View>
-
-                <View
-                    style={{
-                    borderBottomColor: 'lightgrey',
-                    borderBottomWidth: 1,
-                    marginTop: 20,
-                    marginBottom: 20
-                }}/>
-
-                <FlashMessage position="bottom" ref="myLocalFlashMessage"/>
             </View>
         );
     }

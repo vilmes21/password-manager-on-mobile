@@ -5,6 +5,9 @@ import Detail from './Detail'
 import Account from './Account'
 import screens from '../consts/screens'
 import accountApi from '../db/accountApi'
+import {showMessage, hideMessage} from "react-native-flash-message";
+import FlashMessage from "react-native-flash-message";
+
 
 export default class Accounts extends React.Component {
     state = {
@@ -46,6 +49,8 @@ export default class Accounts extends React.Component {
         return (
             <View>
                 {this.renderAccounts(accounts)}
+
+                <FlashMessage position="top" ref="accountsFlash"/>
             </View>
         );
     }

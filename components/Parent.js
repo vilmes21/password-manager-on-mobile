@@ -1,4 +1,5 @@
 import React from 'react';
+import {showMessage, hideMessage} from "react-native-flash-message";
 import {
     StyleSheet,
     Text,
@@ -9,28 +10,30 @@ import {
 } from 'react-native';
 import Vault from './Vault'
 import Icon from 'react-native-vector-icons/FontAwesome';
+import FlashMessage from "react-native-flash-message";
+import Locked from './Locked';
 
 export default class Parent extends React.Component {
 
     state = {
-        masterPW: '',
-        showPW: true,
+        masterPW: "",
+        visible: false,
         unlocked: false
+    }
+
+    toggleVisibility = () => {
+        this.setState({
+            visible: !this.state.visible
+        })
     }
 
     handleChange = txt => {
         this.setState({masterPW: txt})
-    }
-
-    makeVisible = () => {
-        this.setState({
-            showPW: !this.state.showPW
-        })
+        // showMessage({message: `test`, type: "success"});
     }
 
     tryUnlock = () => {
         if (true) {
-            //if (this.state.masterPW === "a") {
             this.setState({unlocked: true, masterPW: ""})
         }
     }
@@ -40,60 +43,23 @@ export default class Parent extends React.Component {
     }
 
     render() {
-        const {showPW, masterPW, unlocked} = this.state;
-
-        if (unlocked) {
-            return <Vault lock={this.lock}/>
-        }
+        const {visible, masterPW, unlocked} = this.state;
 
         return (
-
             <View style={styles.container}>
                 <View style={styles.content}>
 
-                    <View
-                        style={{
-                        display: "flex",
-                        flexDirection: 'row',
-                        justifyContent: 'center',
-                        paddingBottom: 10
-                    }}>
-                        <Icon name="lock" size={150} color="grey"/>
-                    </View>
-
-                    <View
-                        style={{
-                        display: "flex",
-                        flexDirection: 'row',
-                        justifyContent: 'center'
-                    }}>
-
-                        <TextInput
-                            style={{
-                            fontSize: 25
-                        }}
-                            secureTextEntry={showPW}
-                            type="password"
-                            name="masterPW"
-                            value={masterPW}
-                            onChangeText={this.handleChange}
-                            placeholder="Say something..."/>
-
-                        <Icon
-                            style={{
-                            marginLeft: 25
-                        }}
-                            name={showPW
-                            ? "eye"
-                            : "eye-slash"}
-                            size={30}
-                            color="grey"
-                            onPress={this.makeVisible}/>
-                    </View>
-
-                    <Button onPress={this.tryUnlock} title="Done"/>
+                    {unlocked
+                        ? <Vault lock={this.lock}/>
+                        : <Locked
+                            toggleVisibility={this.toggleVisibility}
+                            tryUnlock={this.tryUnlock}
+                            handleChange={this.handleChange}
+                            visible={visible}
+                            masterPW={masterPW}/>
+}
                 </View>
-
+                <FlashMessage position="top"/>
             </View>
         );
     }
@@ -103,11 +69,16 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: 'center',
-        alignItems: 'center'
+        // alignItems: 'center',
+
     },
     content: {
         flexGrow: 1,
-        justifyContent: 'center'
+        justifyContent: 'center',
+        paddingTop: 0,
+        paddingBottom: 40,
+        paddingLeft: 20,
+        paddingRight: 20
     },
     whiteTxt: {
         color: 'white'
