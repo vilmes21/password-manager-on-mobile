@@ -43,7 +43,7 @@ export default class Locked extends React.Component {
                         name="masterPW"
                         value={masterPW}
                         onChangeText={handleChange}
-                        placeholder="Say something..."/>
+                        placeholder="Open Sesame..."/>
 
                     <Icon
                         style={{

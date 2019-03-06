@@ -59,7 +59,7 @@ export default class Parent extends React.Component {
                             masterPW={masterPW}/>
 }
                 </View>
-                <FlashMessage position="top"/>
+                <FlashMessage position="bottom"/>
             </View>
         );
     }
@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
     content: {
         flexGrow: 1,
         justifyContent: 'center',
-        paddingTop: 0,
+        paddingTop: 50,
         paddingBottom: 40,
         paddingLeft: 20,
         paddingRight: 20

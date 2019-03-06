@@ -10,8 +10,11 @@ export default class Account extends React.Component {
         return (
             <View>
                 <TouchableOpacity
+                    style={{
+                    paddingTop: 10,
+                    paddingBottom: 10
+                }}
                     onPress={() => {
-                    console.log("PRESSED id: ", id);
                     showScreen(screens.detail, {
                         accountId: id,
                         editable: false,
@@ -19,7 +22,9 @@ export default class Account extends React.Component {
                         isNew: false
                     })
                 }}>
-                    <Text style={{fontSize: 30}}>
+                    <Text style={{
+                        fontSize: 30
+                    }}>
                         {id}. {title}
                     </Text>
                 </TouchableOpacity>

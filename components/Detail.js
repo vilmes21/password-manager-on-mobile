@@ -98,19 +98,15 @@ export default class Detail extends React.Component {
 
         const {editable, isNew} = this.props.screenData;
 
-        return (
-            <ScrollView>
-                {newRowArr.map((row, index) => {
-                    return <DetailItem
-                        isNew={isNew}
-                        editable={editable}
-                        handleChange={this.handleChangeGeneric}
-                        key={row.id || `i_${index}`}
-                        index={index}
-                        data={row}/>
-                })}
-            </ScrollView>
-        )
+        return newRowArr.map((row, index) => {
+            return <DetailItem
+                isNew={isNew}
+                editable={editable}
+                handleChange={this.handleChangeGeneric}
+                key={row.id || `i_${index}`}
+                index={index}
+                data={row}/>
+        })
     }
 
     saveRows = () => {
@@ -190,8 +186,6 @@ export default class Detail extends React.Component {
         const {hasMadeEdits} = this.state;
         const {toggleEditable} = this.props;
 
-        console.log("2222222 hasMadeEdits: ", hasMadeEdits)
-
         if (!hasMadeEdits) {
             toggleEditable(false);
             return;
@@ -244,7 +238,8 @@ export default class Detail extends React.Component {
         const {isNew, accountId, editable, accountTitle} = screenData;
 
         return (
-            <View style={{
+            <View
+                style={{
                 flex: 1,
                 flexDirection: "column",
                 alignContent: "flex-start"
@@ -271,25 +266,27 @@ export default class Detail extends React.Component {
 
                 <View
                     style={{
+                    paddingTop: 20,
+                    paddingBottom: 20,
                     display: "flex",
                     flexDirection: 'row',
-                    justifyContent: 'space-around',
+                    justifyContent: 'center'
                 }}>
                     <View>
                         <Text
                             style={{
-                            textAlign: "center",
+                            paddingRight: 20,
                             fontWeight: "bold",
                             fontSize: 25
                         }}>
-                            Account - {accountId}. {accountTitle}
+                            {accountId}. {accountTitle}
                         </Text>
                     </View>
 
                     <View>
                         {editable || <Icon
                             name="pencil"
-                            size={30}
+                            size={25}
                             color="grey"
                             onPress={() => {
                             this.backupBeforeEdit(() => {
@@ -302,11 +299,22 @@ export default class Detail extends React.Component {
                     </View>
                 </View>
 
-                {this.renderSavedRows(savedArr)}
+                <ScrollView>
 
-                {this.showNewRows(newRowArr)}
+                    {this.renderSavedRows(savedArr)}
 
-                {editable && <Icon name="plus" size={30} color="grey" onPress={this.addRow}/>
+                    {this.showNewRows(newRowArr)}
+
+                </ScrollView>
+
+                {editable && <View
+                    style={{
+                    display: "flex",
+                    flexDirection: 'row',
+                    justifyContent: 'center'
+                }}>
+                    <Icon name="plus" size={30} color="grey" onPress={this.addRow}/>
+                </View>
 }
 
                 <View style={{
@@ -315,7 +323,7 @@ export default class Detail extends React.Component {
 
                 {editable && <Button onPress={this.saveRows} title="Save"/>}
 
-                <TouchableOpacity
+                {editable || <TouchableOpacity
                     onLongPress={this.confirmDeleteAccount}
                     style={{
                     position: "absolute",
@@ -323,7 +331,7 @@ export default class Detail extends React.Component {
                     left: 20
                 }}>
                     <Icon name="trash" size={15} color="red"/>
-                </TouchableOpacity>
+                </TouchableOpacity>}
 
             </View>
         );

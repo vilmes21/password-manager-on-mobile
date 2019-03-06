@@ -57,7 +57,31 @@ export default class Vault extends React.Component {
         }
 
         return (
-            <View>
+            <View
+                style={{
+                flex: 1,
+                flexDirection: "column",
+                alignContent: "flex-start"
+            }}>
+
+                <View
+                    style={{
+                    display: "flex",
+                    flexDirection: 'row',
+                    justifyContent: 'space-between'
+                }}>
+
+                    <Icon
+                        name="plus"
+                        size={30}
+                        color="grey"
+                        onPress={() => {
+                        this.showScreen(screens.add)
+                    }}/>
+
+                    <Icon name="lock" size={30} color="grey" onPress={lock}/>
+
+                </View>
 
                 <Text
                     style={{
@@ -86,15 +110,15 @@ export default class Vault extends React.Component {
                     right: 10
                 }}>
 
-                    <Icon
+                    {/* <Icon
                         name="plus"
                         size={30}
                         color="grey"
                         onPress={() => {
                         this.showScreen(screens.add)
-                    }}/>
+                    }}/> */}
 
-                    <Icon name="lock" size={30} color="grey" onPress={lock}/>
+                    {/* <Icon name="lock" size={30} color="grey" onPress={lock}/> */}
 
                 </View>
             </View>
