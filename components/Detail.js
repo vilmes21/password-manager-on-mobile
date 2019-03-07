@@ -7,7 +7,8 @@ import {
     Alert,
     TouchableOpacity,
     Button,
-    ScrollView
+    ScrollView,
+    Picker
 } from 'react-native';
 import screens from '../consts/screens'
 import detailApi from '../db/detailApi'
@@ -16,6 +17,12 @@ import DetailItem from './DetailItem'
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {showMessage, hideMessage} from "react-native-flash-message";
 import modes from '../consts/modes'
+import {
+    Menu,
+    MenuOptions,
+    MenuOption,
+    MenuTrigger,
+  } from 'react-native-popup-menu';
 
 
 export default class Detail extends React.Component {
@@ -326,14 +333,6 @@ export default class Detail extends React.Component {
                     flexDirection: 'row',
                     justifyContent: 'center'
                 }}>
-
-{
-    mode === modes.read &&
-<Button onPress={()=>{
-                    this.toMode(modes.delete);
-                }} title="del mode"/>
-}
-
                 
                     <View>
                         <Text
@@ -346,20 +345,38 @@ export default class Detail extends React.Component {
                         </Text>
                     </View>
 
+{mode === modes.read &&
                     <View>
-                        {mode === modes.read && <Icon
-                            name="pencil"
-                            size={25}
+    
+    <Menu>
+      <MenuTrigger>
+      <Icon
+                            name="ellipsis-v"
+                            size={30}
                             color="grey"
-                            onPress={() => {
-                            this.backupBeforeEdit(() => {
-                                this.toMode(modes.edit);
-                            });
-                        }}/>}
+                            />
+      </MenuTrigger>
+      <MenuOptions>
+        <MenuOption style={styles.menuOption} onSelect={() => {
+            this.backupBeforeEdit(() => {
+                this.toMode(modes.edit);
+            });
+        }} >
+        <Text style={{fontSize: 20}}>Edit mode</Text>
+        </MenuOption>
 
-                        {mode === modes.edit && !isNew && <Button onPress={this.cancelEdits} title="Cancel edits"/>
-}
-                    </View>
+        <MenuOption style={styles.menuOption}  onSelect={() => {
+                    this.toMode(modes.delete);
+        }} >
+          <Text style={{color: 'red', fontSize: 20}}>Deletion mode</Text>
+        </MenuOption>
+       
+      </MenuOptions>
+    </Menu>
+  </View>
+  }
+
+                
                 </View>
 
                 <ScrollView>
@@ -384,6 +401,9 @@ export default class Detail extends React.Component {
                     padding: 20
                 }}></View>
 
+{mode === modes.edit && !isNew && <Button onPress={this.cancelEdits} title="Cancel edits"/>
+}
+
                 {mode === modes.edit && <Button disabled={!hasMadeEdits} onPress={this.saveRows} title="Save"/>}
 
 {
@@ -407,3 +427,13 @@ export default class Detail extends React.Component {
         );
     }
 }
+
+const styles = StyleSheet.create({
+    menuOption: {
+        paddingTop: 15,
+        paddingBottom: 15,
+        paddingLeft: 20,
+        paddingRight: 20,
+        fontSize: 70
+    }
+});
