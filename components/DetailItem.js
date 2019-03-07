@@ -1,3 +1,4 @@
+
 import React from 'react';
 import {
     Clipboard,
@@ -13,6 +14,7 @@ import FlashMessage from "react-native-flash-message";
 import {showMessage, hideMessage} from "react-native-flash-message";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import detailApi from '../db/detailApi'
+import modes from '../consts/modes';
 
 export default class DetailItem extends React.Component {
     state = {
@@ -35,10 +37,20 @@ export default class DetailItem extends React.Component {
     }
 
     confirmDeleteDetail = () => {
-        const {data, rmItemFromNewArr, rmItemFromSavedArr, markEditsMade} = this.props;
+        const {data, rmItemFromNewArr, rmItemFromSavedArr, markEditsMade,accountTitle} = this.props;
+
+        /*
+      data =  {
+  "accountId": 22,
+  "id": 65,
+  "key": "Username",
+  "value": "asdfasfddddd",
+}
+        */
+        
         const {key, id} = data;
 
-        Alert.alert(`Delete ${key}?`, `Once done, it cannot be recoverd.`, [
+        Alert.alert(`Delete ${key}?`, `Other items under ${accountTitle} will remain.`, [
             {
                 text: 'Delete',
                 onPress: () => {
@@ -65,7 +77,7 @@ export default class DetailItem extends React.Component {
 
     render() {
         const {
-            editable,
+            mode,
             data,
             handleChange,
             index,
@@ -101,8 +113,8 @@ export default class DetailItem extends React.Component {
                             }}
                                 name="key"
                                 value={data.key}
-                                editable={editable}
-                                autoFocus={editable}
+                                editable={mode === modes.edit}
+                                autoFocus={mode === modes.edit}
                                 onChangeText={txt => {
                                 if (data.id) {
                                     modifyExisting(data.id, "key", txt)
@@ -114,7 +126,7 @@ export default class DetailItem extends React.Component {
                                 
                                 
                                 {
-                                    editable && 
+                                    mode === modes.delete && 
                                     
                                     <TouchableOpacity
                                     style={{
@@ -152,9 +164,7 @@ export default class DetailItem extends React.Component {
                     }}>
 
                         {
-                            !isNew 
-                            && 
-                            !editable && 
+                            mode === modes.read && 
                         <View>
                             <Icon
                                 name="copy"
@@ -172,7 +182,7 @@ export default class DetailItem extends React.Component {
                                 name="value"
                                 secureTextEntry={!visible}
                                 value={data.value}
-                                editable={editable}
+                                editable={mode === modes.edit}
                                 onChangeText={txt => {
                                 if (data.id) {
                                     modifyExisting(data.id, "value", txt)

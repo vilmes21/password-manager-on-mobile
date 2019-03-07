@@ -9,7 +9,7 @@ const addAccount = (title, callback) => {
     console.log(myNote + fnName + "entered fn, title: ", title)
 
     db.transaction(tx => {
-        tx.executeSql(`insert into account (title) values ("${title}")`, [], (_, returned) => {
+        tx.executeSql(`insert into account (title) values (?)`, [title], (_, returned) => {
             console.log(myNote + fnName + " succeeded, returned: ", returned);
             callback(returned.insertId)
         }, e => {

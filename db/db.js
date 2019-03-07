@@ -39,8 +39,6 @@ db.transaction(tx => {
 
     tx.executeSql('create table if not exists detail (id integer primary key not null, accountId integer, key text not null, value text not null, FOREIGN KEY (accountId) REFERENCES account(id));');
 
-    tx.executeSql('delete from account where id < 8');
-
     // tx.executeSql('insert into account (title) values ("first titre")');
     // tx.executeSql('insert into detail (accountId, key, value) values (1, "one key","first val")');
 

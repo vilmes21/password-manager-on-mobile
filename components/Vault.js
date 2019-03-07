@@ -25,15 +25,6 @@ export default class Vault extends React.Component {
         this.setState({screenNow, screenData})
     }
 
-    toggleEditable = isEditable => {
-        this.setState({
-            screenData: {
-                ...this.state.screenData,
-                editable: isEditable
-            }
-        })
-    }
-
     showList = accounts => {
         if (!accounts || accounts.length === 0) {
             return <Text>0 item</Text>
@@ -53,7 +44,7 @@ export default class Vault extends React.Component {
                 lock={lock}
                 showScreen={this.showScreen}
                 screenData={screenData}
-                toggleEditable={this.toggleEditable}/>
+                />
         }
 
         return (

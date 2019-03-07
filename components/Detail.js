@@ -15,13 +15,20 @@ import mixedApi from '../db/mixedApi'
 import DetailItem from './DetailItem'
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {showMessage, hideMessage} from "react-native-flash-message";
+import modes from '../consts/modes'
+
 
 export default class Detail extends React.Component {
     state = {
         savedArr: [],
         newRowArr: [],
         beforeEditArr: [],
-        hasMadeEdits: false
+        hasMadeEdits: false,
+        mode: modes.read
+    }
+
+    toMode = mode => {
+        this.setState({mode})
     }
 
     rmItemFromNewArr = obj => {
@@ -61,7 +68,7 @@ export default class Detail extends React.Component {
 
     restoreBeforeEdit = () => {
         const {beforeEditArr} = this.state;
-        this.setState({savedArr: beforeEditArr})
+        this.setState({savedArr: beforeEditArr, newRowArr: []})
     }
 
     componentDidMount() {
@@ -119,15 +126,17 @@ export default class Detail extends React.Component {
             return null;
         }
 
-        const {editable, isNew} = this.props.screenData;
+        const {mode}= this.state;
+        const { isNew, accountTitle} = this.props.screenData;
 
         return newRowArr.map((row, index) => {
             return <DetailItem
+            accountTitle= {accountTitle}
                 markEditsMade={this.markEditsMade}
                 rmItemFromNewArr={this.rmItemFromNewArr}
                 rmItemFromSavedArr={this.rmItemFromSavedArr}
                 isNew={isNew}
-                editable={editable}
+                mode={mode}
                 handleChange={this.handleChangeGeneric}
                 key={row.id || `i_${index}`}
                 index={index}
@@ -141,7 +150,7 @@ export default class Detail extends React.Component {
         const modifiedArr = savedArr.length > 0
             ? savedArr.filter(x => x.modified)
             : [];
-        const {screenData, toggleEditable} = this.props;
+        const {screenData} = this.props;
         const {accountId, accountTitle} = screenData;
 
         const toSend = {
@@ -152,8 +161,9 @@ export default class Detail extends React.Component {
         const changedRowCount = toSend.newRowArr.length;
 
         if (changedRowCount === 0){
+            this.toMode(modes.read);
             this.getDetailsFromDB();
-            toggleEditable(false);
+            
             this.setState({
                 newRowArr: [],
                 hasMadeEdits: false
@@ -163,8 +173,9 @@ export default class Detail extends React.Component {
         }
 
         const afterSaveDo = () => {
+            this.toMode(modes.read);
             this.getDetailsFromDB();
-            toggleEditable(false);
+            
             this.setState({
                 newRowArr: [],
                 hasMadeEdits: false
@@ -207,15 +218,18 @@ export default class Detail extends React.Component {
             return null;
         }
 
-        const {editable} = this.props.screenData;
+        const {mode}=this.state;
+
+        const { accountTitle} = this.props.screenData;
 
         return savedArr.map(row => {
             return <DetailItem
+            accountTitle={accountTitle}
                 markEditsMade={this.markEditsMade}
                 rmItemFromNewArr={this.rmItemFromNewArr}
                 rmItemFromSavedArr={this.rmItemFromSavedArr}
                 isNew={false}
-                editable={editable}
+                mode={mode}
                 handleChange={this.handleChangeGeneric}
                 key={row.id}
                 data={row}
@@ -225,10 +239,9 @@ export default class Detail extends React.Component {
 
     cancelEdits = () => {
         const {hasMadeEdits} = this.state;
-        const {toggleEditable} = this.props;
 
         if (!hasMadeEdits) {
-            toggleEditable(false);
+            this.toMode(modes.read);
             return;
         }
 
@@ -237,7 +250,7 @@ export default class Detail extends React.Component {
                 text: 'Give up edits',
                 onPress: () => {
                     this.restoreBeforeEdit();
-                    toggleEditable(false);
+                    this.toMode(modes.read);
                 }
             }, {
                 text: 'Keep editing',
@@ -248,7 +261,7 @@ export default class Detail extends React.Component {
 
     confirmDeleteAccount = () => {
         const {screenData, showScreen} = this.props;
-        const {isNew, accountId, editable, accountTitle} = screenData;
+        const {isNew, accountId, accountTitle} = screenData;
         const {savedArr} = this.state;
         const savedArrLen = savedArr.length;
 
@@ -274,9 +287,9 @@ export default class Detail extends React.Component {
     }
 
     render() {
-        const {savedArr, newRowArr, hasMadeEdits} = this.state;
-        const {screenData, showScreen, toggleEditable, lock} = this.props;
-        const {isNew, accountId, editable, accountTitle} = screenData;
+        const {savedArr, newRowArr, mode,hasMadeEdits} = this.state;
+        const {screenData, showScreen, lock} = this.props;
+        const {isNew, accountId, accountTitle} = screenData;
 
         return (
             <View
@@ -293,7 +306,7 @@ export default class Detail extends React.Component {
                     justifyContent: 'space-between'
                 }}>
 
-                    {editable || <Icon
+                    {mode === modes.edit || <Icon
                         name="home"
                         size={30}
                         color="grey"
@@ -301,7 +314,7 @@ export default class Detail extends React.Component {
                         showScreen(screens.all)
                     }}/>}
 
-                    {editable || <Icon name="lock" size={30} color="grey" onPress={lock}/>}
+                    {mode === modes.edit || <Icon name="lock" size={30} color="grey" onPress={lock}/>}
 
                 </View>
 
@@ -313,6 +326,15 @@ export default class Detail extends React.Component {
                     flexDirection: 'row',
                     justifyContent: 'center'
                 }}>
+
+{
+    mode === modes.read &&
+<Button onPress={()=>{
+                    this.toMode(modes.delete);
+                }} title="del mode"/>
+}
+
+                
                     <View>
                         <Text
                             style={{
@@ -325,17 +347,17 @@ export default class Detail extends React.Component {
                     </View>
 
                     <View>
-                        {editable || <Icon
+                        {mode === modes.read && <Icon
                             name="pencil"
                             size={25}
                             color="grey"
                             onPress={() => {
                             this.backupBeforeEdit(() => {
-                                toggleEditable(true);
+                                this.toMode(modes.edit);
                             });
                         }}/>}
 
-                        {editable && !isNew && <Button onPress={this.cancelEdits} title="Cancel edits"/>
+                        {mode === modes.edit && !isNew && <Button onPress={this.cancelEdits} title="Cancel edits"/>
 }
                     </View>
                 </View>
@@ -348,7 +370,7 @@ export default class Detail extends React.Component {
 
                 </ScrollView>
 
-                {editable && <View
+                {mode === modes.edit && <View
                     style={{
                     display: "flex",
                     flexDirection: 'row',
@@ -362,9 +384,16 @@ export default class Detail extends React.Component {
                     padding: 20
                 }}></View>
 
-                {editable && <Button disabled={!hasMadeEdits} onPress={this.saveRows} title="Save"/>}
+                {mode === modes.edit && <Button disabled={!hasMadeEdits} onPress={this.saveRows} title="Save"/>}
 
-                {editable && <TouchableOpacity
+{
+    mode === modes.delete &&
+<Button onPress={()=>{
+                    this.toMode(modes.read);
+                }} title="Done"/>
+}
+
+                {mode === modes.delete && <TouchableOpacity
                     onLongPress={this.confirmDeleteAccount}
                     style={{
                     position: "absolute",
