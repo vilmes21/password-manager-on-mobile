@@ -3,6 +3,7 @@ import {StyleSheet, Text, TextInput, View, Button} from 'react-native';
 import screens from '../consts/screens'
 import db from '../db/db'
 import accountApi from '../db/accountApi'
+import isStringBad from '../consts/isStringBad'
 
 export default class Add extends React.Component {
     state = {
@@ -13,22 +14,12 @@ export default class Add extends React.Component {
         this.setState({title: txt})
     }
 
-    isStringBad = title => {
-        if (!title) {
-            return true;
-        }
 
-        if (title.replace(/\s/g, "")) {
-            return false;
-        }
-
-        return true;
-    }
 
     render() {
         const {title} = this.state;
         const {toScreen} = this.props;
-        const disableNext = this.isStringBad(title);
+        const disableNext = isStringBad(title);
 
         return (
             <View style={styles.container}>

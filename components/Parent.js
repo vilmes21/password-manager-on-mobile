@@ -13,6 +13,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import FlashMessage from "react-native-flash-message";
 import Locked from './Locked';
 import Add from './Add';
+import Signup from './Signup';
 import Detail from './Detail';
 import screens from '../consts/screens';
 
@@ -39,11 +40,14 @@ export default class Parent extends React.Component {
             case screens.all:
                 page = <Vault toScreen={this.toScreen}/>;
                 break;
+            case screens.detail:
+                page = <Detail toScreen={this.toScreen} screenData={screenData}/>
+                break;
             case screens.add:
                 page = <Add toScreen={this.toScreen}/>;
                 break;
-            case screens.detail:
-                page = <Detail toScreen={this.toScreen} screenData={screenData}/>
+            case screens.signup:
+                page = <Signup toScreen={this.toScreen}/>;
                 break;
             default:
                 page = <Locked/>;

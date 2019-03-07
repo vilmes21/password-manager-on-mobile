@@ -43,6 +43,7 @@ export default class Locked extends React.Component {
     
     render() {
         const {masterPW, visible} = this.state;
+        const {toScreen}= this.props;
 
         return (
             <View>
@@ -87,7 +88,7 @@ export default class Locked extends React.Component {
 
                 <Button onPress={this.tryUnlock} title="Done"/>
                 <Button onPress={()=>{
-                    toScreen()
+                    toScreen(screens.signup)
                 }} title="Sign up"/>
             </View>
         );
