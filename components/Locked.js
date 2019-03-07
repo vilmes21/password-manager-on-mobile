@@ -11,10 +11,38 @@ import {
 import Vault from './Vault'
 import Icon from 'react-native-vector-icons/FontAwesome';
 import FlashMessage from "react-native-flash-message";
+import screens from '../consts/screens';
 
 export default class Locked extends React.Component {
+    state = {
+        masterPW: "",
+        visible: false,
+    }
+    
+    handleChange = txt => {
+        this.setState({masterPW: txt})
+    }
+
+    toggleVisibility = () => {
+        this.setState({
+            visible: !this.state.visible
+        })
+    }
+
+    tryUnlock = () => {
+        if (true) {
+            this.setState({masterPW: ""});
+            this.props.toScreen(screens.all);
+        } else {
+            showMessage({
+                message: "Wrong credentials!",
+                type: "danger",
+              });
+        }
+    }
+    
     render() {
-        const {handleChange, masterPW, toggleVisibility, tryUnlock, visible} = this.props;
+        const {masterPW, visible} = this.state;
 
         return (
             <View>
@@ -42,7 +70,7 @@ export default class Locked extends React.Component {
                         type="password"
                         name="masterPW"
                         value={masterPW}
-                        onChangeText={handleChange}
+                        onChangeText={this.handleChange}
                         placeholder="Open Sesame..."/>
 
                     <Icon
@@ -54,10 +82,13 @@ export default class Locked extends React.Component {
                         : "eye"}
                         size={30}
                         color="grey"
-                        onPress={toggleVisibility}/>
+                        onPress={this.toggleVisibility}/>
                 </View>
 
-                <Button onPress={tryUnlock} title="Done"/>
+                <Button onPress={this.tryUnlock} title="Done"/>
+                <Button onPress={()=>{
+                    toScreen()
+                }} title="Sign up"/>
             </View>
         );
     }

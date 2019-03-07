@@ -37,7 +37,7 @@ export default class DetailItem extends React.Component {
     }
 
     confirmDeleteDetail = () => {
-        const {data, rmItemFromNewArr, rmItemFromSavedArr, markEditsMade,accountTitle} = this.props;
+        const {data, rmItemFromNewArr, rmItemFromSavedArr,accountTitle} = this.props;
 
         /*
       data =  {
@@ -55,7 +55,6 @@ export default class DetailItem extends React.Component {
                 text: 'Delete',
                 onPress: () => {
 
-                    markEditsMade()
                     const afterDeleteDo = () => {
                         rmItemFromSavedArr(id);
                     };

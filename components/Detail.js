@@ -24,14 +24,13 @@ import {
     MenuTrigger,
   } from 'react-native-popup-menu';
 
-
 export default class Detail extends React.Component {
     state = {
+        mode: this.props.screenData.isNew? modes.edit : modes.read,
         savedArr: [],
         newRowArr: [],
-        beforeEditArr: [],
         hasMadeEdits: false,
-        mode: modes.read
+        beforeEditArr: [],
     }
 
     toMode = mode => {
@@ -56,10 +55,6 @@ export default class Detail extends React.Component {
         })
     }
 
-    markEditsMade = () => {
-        this.setState({hasMadeEdits: true})
-    }
-
     backupBeforeEdit = callback => {
         const beforeEditArr = [];
         const {savedArr} = this.state;
@@ -79,23 +74,22 @@ export default class Detail extends React.Component {
     }
 
     componentDidMount() {
-
         const {isNew} = this.props.screenData;
 
         if (isNew) {
             this.addRow();
-            return;
+        } else {
+            this.getDetailsFromDB()
         }
-        this.getDetailsFromDB()
     }
 
     getDetailsFromDB = () => {
         const {accountId} = this.props.screenData;
 
-        const setStateDetail = savedArr => {
+        const afterGettingDetailsDo = savedArr => {
             this.setState({savedArr})
         }
-        detailApi.getDetailByAccountId(accountId, setStateDetail)
+        detailApi.getDetailByAccountId(accountId, afterGettingDetailsDo)
     }
 
     handleChangeGeneric = (index, name, txt) => {
@@ -128,7 +122,6 @@ export default class Detail extends React.Component {
     }
 
     showNewRows = newRowArr => {
-
         if (newRowArr.length === 0) {
             return null;
         }
@@ -139,7 +132,6 @@ export default class Detail extends React.Component {
         return newRowArr.map((row, index) => {
             return <DetailItem
             accountTitle= {accountTitle}
-                markEditsMade={this.markEditsMade}
                 rmItemFromNewArr={this.rmItemFromNewArr}
                 rmItemFromSavedArr={this.rmItemFromSavedArr}
                 isNew={isNew}
@@ -232,7 +224,6 @@ export default class Detail extends React.Component {
         return savedArr.map(row => {
             return <DetailItem
             accountTitle={accountTitle}
-                markEditsMade={this.markEditsMade}
                 rmItemFromNewArr={this.rmItemFromNewArr}
                 rmItemFromSavedArr={this.rmItemFromSavedArr}
                 isNew={false}
@@ -267,7 +258,7 @@ export default class Detail extends React.Component {
     }
 
     confirmDeleteAccount = () => {
-        const {screenData, showScreen} = this.props;
+        const {screenData, toScreen} = this.props;
         const {isNew, accountId, accountTitle} = screenData;
         const {savedArr} = this.state;
         const savedArrLen = savedArr.length;
@@ -281,7 +272,7 @@ export default class Detail extends React.Component {
                 text: 'Delete',
                 onPress: () => {
                     const afterDeleteDo = () => {
-                        showScreen(screens.all);
+                        toScreen(screens.all);
                         showMessage({message: `${accountTitle} deleted`, type: "success"});
                     };
                     mixedApi.deleteAccountCascade(accountId, afterDeleteDo);
@@ -295,7 +286,7 @@ export default class Detail extends React.Component {
 
     render() {
         const {savedArr, newRowArr, mode,hasMadeEdits} = this.state;
-        const {screenData, showScreen, lock} = this.props;
+        const {screenData, toScreen} = this.props;
         const {isNew, accountId, accountTitle} = screenData;
 
         return (
@@ -318,10 +309,10 @@ export default class Detail extends React.Component {
                         size={30}
                         color="grey"
                         onPress={() => {
-                        showScreen(screens.all)
+                        toScreen(screens.all)
                     }}/>}
 
-                    {mode === modes.edit || <Icon name="lock" size={30} color="grey" onPress={lock}/>}
+                    {mode === modes.edit || <Icon name="lock" size={30} color="grey" onPress={()=>{toScreen(screens.login)}}/>}
 
                 </View>
 

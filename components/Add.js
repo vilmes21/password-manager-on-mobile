@@ -27,7 +27,7 @@ export default class Add extends React.Component {
 
     render() {
         const {title} = this.state;
-        const {showScreen} = this.props;
+        const {toScreen} = this.props;
         const disableNext = this.isStringBad(title);
 
         return (
@@ -51,7 +51,7 @@ export default class Add extends React.Component {
                 }}>
                     <Button
                         onPress={() => {
-                        showScreen(screens.all)
+                        toScreen(screens.all)
                     }}
                         title="Cancel"/>
 
@@ -59,7 +59,7 @@ export default class Add extends React.Component {
                         disabled={disableNext}
                         onPress={() => {
                         const callback = insertId => {
-                            showScreen(screens.detail, {
+                            toScreen(screens.detail, {
                                 accountId: insertId,
                                 editable: true,
                                 accountTitle: title,

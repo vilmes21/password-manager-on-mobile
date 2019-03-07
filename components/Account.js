@@ -4,8 +4,8 @@ import {StyleSheet, Text, View, Button, TouchableOpacity} from 'react-native';
 
 export default class Account extends React.Component {
     render() {
-        const {id, title} = this.props.data;
-        const {showScreen} = this.props;
+        const {toScreen,data} = this.props;
+        const {id, title} = data;
 
         return (
             <View>
@@ -15,7 +15,7 @@ export default class Account extends React.Component {
                     paddingBottom: 10
                 }}
                     onPress={() => {
-                    showScreen(screens.detail, {
+                    toScreen(screens.detail, {
                         accountId: id,
                         editable: false,
                         accountTitle: title,

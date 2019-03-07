@@ -22,33 +22,21 @@ export default class Accounts extends React.Component {
         accountApi.getAll(setStateAccounts)
     }
 
-    toggleEditable = isEditable => {
-        this.setState({
-            screenData: {
-                ...this.state.screenData,
-                editable: isEditable
-            }
-        })
-    }
-
     renderAccounts = accounts => {
         if (!accounts || accounts.length === 0) {
             return <Text>0 item</Text>
         }
 
-        const {showScreen} = this.props;
+        const {toScreen} = this.props;
 
-        return accounts.map(x => <Account key={x.id} data={x} showScreen={showScreen}/>)
+        return accounts.map(x => <Account key={x.id} data={x} toScreen={toScreen}/>)
     }
 
     render() {
         const {accounts} = this.state;
 
-        const {showScreen} = this.props;
-
         return (
             <View>
-              
                 {this.renderAccounts(accounts)}
             </View>
         );
