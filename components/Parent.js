@@ -20,6 +20,7 @@ import screens from '../consts/screens';
 export default class Parent extends React.Component {
 
     state = {
+        userId: 0,
         screen: screens.login,
         screenData: null
     }
@@ -28,30 +29,39 @@ export default class Parent extends React.Component {
         this.setState({screen, screenData})
     }
 
+    lockApp = () => {
+        this.setState({userId: 0, screen: screens.login})
+    }
+
+    unlockApp = userId => {
+        this.setState({userId, screen: screens.all})
+    }
+
     render() {
-        const {screen, screenData} = this.state;
+        const {userId, screen, screenData} = this.state;
 
-        let page = <View>Error</View>;
+        let page = null;
+        if (userId < 1) {
+            page = screen === screens.signup
+                ? <Signup lockApp={this.lockApp} toScreen={this.toScreen} unlockApp={this.unlockApp}/>
+                : <Locked toScreen={this.toScreen} unlockApp={this.unlockApp}/>;
+        } else {
 
-        switch (screen) {
-            case screens.login:
-                page = <Locked toScreen={this.toScreen}/>;
-                break;
-            case screens.all:
-                page = <Vault toScreen={this.toScreen}/>;
-                break;
-            case screens.detail:
-                page = <Detail toScreen={this.toScreen} screenData={screenData}/>
-                break;
-            case screens.add:
-                page = <Add toScreen={this.toScreen}/>;
-                break;
-            case screens.signup:
-                page = <Signup toScreen={this.toScreen}/>;
-                break;
-            default:
-                page = <Locked/>;
-                break;
+            switch (screen) {
+                case screens.all:
+                    page = <Vault lockApp={this.lockApp} toScreen={this.toScreen}/>;
+                    break;
+                case screens.detail:
+                    page = <Detail toScreen={this.toScreen} screenData={screenData}
+                    lockApp={this.lockApp}/>
+                    break;
+                case screens.add:
+                    page = <Add toScreen={this.toScreen}/>;
+                    break;
+                default:
+                    page = <Locked/>;
+                    break;
+            }
         }
 
         return (

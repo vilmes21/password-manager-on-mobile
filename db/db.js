@@ -31,17 +31,17 @@ const selectSth = () => {
 }
 
 db.transaction(tx => {
-    // tx.executeSql('create table if not exists items (id integer primary key not
-    // null, done int, value text);');
+    // tx.executeSql('drop table user');
+    // tx.executeSql('drop table account');
+    // tx.executeSql('drop table detail');
 
-    tx.executeSql('create table if not exists user (id integer primary key not null, email text, password text, keyPrefix text, UNIQUE (email))');
+    tx.executeSql('create table if not exists user (id integer primary key not null, email varchar(255), password text, UNIQUE (email))');
 
-    //tx.executeSql('insert into user (email, password, keyPrefix) values ("c@test.com", "123", "abc")');
+    //tx.executeSql('insert into user (email, password, saltPrefix) values ("b@test.com", "123", "abcd")');
 
-    tx.executeSql('create table if not exists account (id integer primary key not null, title text)' +
-            ';');
+    tx.executeSql('create table if not exists account (id integer primary key not null, userId integer, title text, saltPrefix text, FOREIGN KEY (userId) REFERENCES user(id))');
 
-    tx.executeSql('create table if not exists detail (id integer primary key not null, accountId integer, key text not null, value text not null, FOREIGN KEY (accountId) REFERENCES account(id));');
+    tx.executeSql('create table if not exists detail (id integer primary key not null, accountId integer, key text not null, value text not null, saltPrefix text, FOREIGN KEY (accountId) REFERENCES account(id))');
 
     // tx.executeSql('insert into account (title) values ("first titre")');
     // tx.executeSql('insert into detail (accountId, key, value) values (1, "one key","first val")');
@@ -51,7 +51,7 @@ db.transaction(tx => {
 }, () => {
 });
 
-// selectSth()
+selectSth()
 
 export default db
 

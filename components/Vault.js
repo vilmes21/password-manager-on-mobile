@@ -17,7 +17,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 
 export default class Vault extends React.Component {
     render() {
-        const {toScreen}=this.props;
+        const {toScreen,lockApp}=this.props;
 
         return (
             <View
@@ -42,9 +42,7 @@ export default class Vault extends React.Component {
                         toScreen(screens.add)
                     }}/>
 
-                    <Icon name="lock" size={30} color="grey" onPress={()=>{
-                        toScreen(screens.login);
-                    }}/>
+                    <Icon name="lock" size={30} color="grey" onPress={lockApp}/>
 
                 </View>
 

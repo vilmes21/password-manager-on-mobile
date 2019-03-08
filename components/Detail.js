@@ -286,7 +286,7 @@ export default class Detail extends React.Component {
 
     render() {
         const {savedArr, newRowArr, mode,hasMadeEdits} = this.state;
-        const {screenData, toScreen} = this.props;
+        const {screenData, toScreen, lockApp} = this.props;
         const {isNew, accountId, accountTitle} = screenData;
 
         return (
@@ -312,7 +312,7 @@ export default class Detail extends React.Component {
                         toScreen(screens.all)
                     }}/>}
 
-                    {mode === modes.edit || <Icon name="lock" size={30} color="grey" onPress={()=>{toScreen(screens.login)}}/>}
+                    {mode === modes.edit || <Icon name="lock" size={30} color="grey" onPress={lockApp}/>}
 
                 </View>
 

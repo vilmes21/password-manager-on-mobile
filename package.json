@@ -8,8 +8,10 @@
   },
   "dependencies": {
     "expo": "^32.0.0",
+    "isaac": "0.0.5",
     "react": "16.5.0",
     "react-native": "https://github.com/expo/react-native/archive/sdk-32.0.0.tar.gz",
+    "react-native-bcrypt": "2.4.0",
     "react-native-flash-message": "0.1.11",
     "react-native-popup-menu": "0.15.4",
     "react-native-vector-icons": "6.3.0"

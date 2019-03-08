@@ -12,15 +12,20 @@ import Vault from './Vault'
 import Icon from 'react-native-vector-icons/FontAwesome';
 import FlashMessage from "react-native-flash-message";
 import screens from '../consts/screens';
+import bcrypt from '../consts/bcryptConfig'
+import userApi from '../db/userApi'
 
 export default class Locked extends React.Component {
     state = {
         masterPW: "",
         visible: false,
+        email: ""
     }
-    
-    handleChange = txt => {
-        this.setState({masterPW: txt})
+
+    handleChange = (txt, name) => {
+        if (txt.indexOf(" ") === -1) {
+            this.setState({[name]: txt})
+        }
     }
 
     toggleVisibility = () => {
@@ -30,20 +35,24 @@ export default class Locked extends React.Component {
     }
 
     tryUnlock = () => {
-        if (true) {
-            this.setState({masterPW: ""});
-            this.props.toScreen(screens.all);
-        } else {
-            showMessage({
-                message: "Wrong credentials!",
-                type: "danger",
-              });
+        const {email, masterPW} = this.state;
+        const {toScreen, unlockApp} = this.props;
+
+        const afterPWCompare = user => {
+            if (user && bcrypt.compareSync(masterPW, user.password)) {
+                this.setState({masterPW: ""});
+                unlockApp(user.id);
+            } else {
+                showMessage({message: "Wrong credentials!", type: "danger"});
+            }
         }
+
+        userApi.getByEmail(email.toLowerCase(), afterPWCompare);
     }
-    
+
     render() {
-        const {masterPW, visible} = this.state;
-        const {toScreen}= this.props;
+        const {masterPW, email, visible} = this.state;
+        const {toScreen} = this.props;
 
         return (
             <View>
@@ -51,7 +60,7 @@ export default class Locked extends React.Component {
                     style={{
                     display: "flex",
                     flexDirection: 'row',
-                    justifyContent: 'center',
+                    justifyContent: 'center'
                 }}>
                     <Icon name="lock" size={150} color="grey"/>
                 </View>
@@ -59,9 +68,21 @@ export default class Locked extends React.Component {
                 <View
                     style={{
                     display: "flex",
-                    flexDirection: 'row',
+                    flexDirection: 'column',
                     justifyContent: 'center'
                 }}>
+
+                    <TextInput
+                        style={{
+                        fontSize: 25
+                    }}
+                        type="email"
+                        name="email"
+                        value={email}
+                        onChangeText={txt => {
+                        this.handleChange(txt, "email")
+                    }}
+                        placeholder="your@email.com"/>
 
                     <TextInput
                         style={{
@@ -71,7 +92,9 @@ export default class Locked extends React.Component {
                         type="password"
                         name="masterPW"
                         value={masterPW}
-                        onChangeText={this.handleChange}
+                        onChangeText={txt => {
+                        this.handleChange(txt, "masterPW")
+                    }}
                         placeholder="Open Sesame..."/>
 
                     <Icon
@@ -87,9 +110,11 @@ export default class Locked extends React.Component {
                 </View>
 
                 <Button onPress={this.tryUnlock} title="Done"/>
-                <Button onPress={()=>{
+                <Button
+                    onPress={() => {
                     toScreen(screens.signup)
-                }} title="Sign up"/>
+                }}
+                    title="Sign up"/>
             </View>
         );
     }

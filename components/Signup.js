@@ -11,6 +11,8 @@ import {
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {showMessage} from 'react-native-flash-message';
 import isStringBad from '../consts/isStringBad'
+import userApi from '../db/userApi'
+import bcrypt from '../consts/bcryptConfig'
 
 export default class Signup extends React.Component {
     state = {
@@ -29,16 +31,28 @@ export default class Signup extends React.Component {
     }
 
     submitForm = () => {
-        const {password, confirmPW} = this.state;
+        const {password, confirmPW, email} = this.state;
         if (password !== confirmPW) {
             showMessage({message: "Password must match", type: "danger"});
             return;
         }
 
+        const saltRounds = 10;
+        var hashedPW = bcrypt.hashSync(password, bcrypt.genSaltSync(saltRounds));
+
+        const afterInsert = insertId =>{
+            this.props.unlockApp(insertId);
+        };
+
+        userApi.insert({
+            email: email.toLowerCase(),
+            password: hashedPW
+        }, afterInsert)
+
     }
 
     render() {
-        const {toScreen} = this.props;
+        const {lockApp} = this.props;
         const {email, password, confirmPW, visible} = this.state;
 
         const disableNext = isStringBad(email) || isStringBad(password) || isStringBad(confirmPW);
@@ -54,9 +68,7 @@ export default class Signup extends React.Component {
                 }}>
 
                     <Button
-                        onPress={() => {
-                        toScreen(screens.login)
-                    }}
+                        onPress={lockApp}
                         title="Cancel"/>
 
                 </View>
