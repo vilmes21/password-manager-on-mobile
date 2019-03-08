@@ -25,8 +25,6 @@ export default class Signup extends React.Component {
     handleChange = (txt, name) => {
         this.setState({
             [name]: txt
-        }, () => {
-            console.log(this.state)
         })
     }
 

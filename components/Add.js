@@ -13,12 +13,10 @@ export default class Add extends React.Component {
     handleChange = txt => {
         this.setState({title: txt})
     }
-
-
-
+    
     render() {
         const {title} = this.state;
-        const {toScreen} = this.props;
+        const {toScreen, userId} = this.props;
         const disableNext = isStringBad(title);
 
         return (
@@ -57,7 +55,7 @@ export default class Add extends React.Component {
                                 isNew: true
                             })
                         }
-                        accountApi.addAccount(title, callback);
+                        accountApi.addAccount({title, userId}, callback);
                     }}
                         title="Next"/>
                 </View>

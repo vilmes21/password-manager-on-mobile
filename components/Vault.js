@@ -17,7 +17,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 
 export default class Vault extends React.Component {
     render() {
-        const {toScreen,lockApp}=this.props;
+        const {toScreen,lockApp,userId}=this.props;
 
         return (
             <View
@@ -60,7 +60,7 @@ export default class Vault extends React.Component {
                     marginTop: 20,
                     marginBottom: 40
                 }}>
-                    <Accounts toScreen={toScreen}/>
+                    <Accounts toScreen={toScreen} userId={userId}/>
                 </ScrollView>
 
                 <View

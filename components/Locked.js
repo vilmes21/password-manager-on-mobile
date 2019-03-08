@@ -19,7 +19,7 @@ export default class Locked extends React.Component {
     state = {
         masterPW: "",
         visible: false,
-        email: ""
+        email: "test@test.com"
     }
 
     handleChange = (txt, name) => {

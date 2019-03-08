@@ -4,12 +4,12 @@ import db from './db'
 
 const myNote = "\n*****************my note **************\n";
 
-const addAccount = (title, callback) => {
+const addAccount = ({title, userId}, callback) => {
     const fnName = " <addAccount fn> ";
     console.log(myNote + fnName + "entered fn, title: ", title)
 
     db.transaction(tx => {
-        tx.executeSql(`insert into account (title) values (?)`, [title], (_, returned) => {
+        tx.executeSql(`insert into account (title, userId) values (?, ?)`, [title, userId], (_, returned) => {
             console.log(myNote + fnName + " succeeded, returned: ", returned);
             callback(returned.insertId)
         }, e => {
@@ -21,10 +21,10 @@ const addAccount = (title, callback) => {
 
 }
 
-const getAll = callback => {
+const getAll = (userId,callback) => {
     const fnName = " <getAll fn> ";
     db.transaction(tx => {
-        tx.executeSql(`select * from account`, [], (_, returned) => {
+        tx.executeSql(`select * from account where userId=?`, [userId], (_, returned) => {
             console.log(myNote + fnName + " succeeded, returned: ", returned);
             callback(returned.rows._array)
         }, e => {

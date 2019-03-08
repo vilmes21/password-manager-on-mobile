@@ -14,6 +14,7 @@ import screens from '../consts/screens'
 import detailApi from '../db/detailApi'
 import mixedApi from '../db/mixedApi'
 import DetailItem from './DetailItem'
+import Generator from './Generator'
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {showMessage, hideMessage} from "react-native-flash-message";
 import modes from '../consts/modes'
@@ -31,6 +32,11 @@ export default class Detail extends React.Component {
         newRowArr: [],
         hasMadeEdits: false,
         beforeEditArr: [],
+        generatorVisible: false
+    }
+
+    toggleGenerator = generatorVisible => {
+        this.setState({generatorVisible})
     }
 
     toMode = mode => {
@@ -285,7 +291,7 @@ export default class Detail extends React.Component {
     }
 
     render() {
-        const {savedArr, newRowArr, mode,hasMadeEdits} = this.state;
+        const {generatorVisible,savedArr, newRowArr, mode,hasMadeEdits} = this.state;
         const {screenData, toScreen, lockApp} = this.props;
         const {isNew, accountId, accountTitle} = screenData;
 
@@ -349,6 +355,12 @@ export default class Detail extends React.Component {
       </MenuTrigger>
       <MenuOptions>
         <MenuOption style={styles.menuOption} onSelect={() => {
+          this.toggleGenerator(true)
+        }} >
+        <Text style={{fontSize: 20}}>Generator</Text>
+        </MenuOption>
+
+        <MenuOption style={styles.menuOption} onSelect={() => {
             this.backupBeforeEdit(() => {
                 this.toMode(modes.edit);
             });
@@ -364,6 +376,8 @@ export default class Detail extends React.Component {
        
       </MenuOptions>
     </Menu>
+
+  
   </View>
   }
 
@@ -414,6 +428,7 @@ export default class Detail extends React.Component {
                     <Icon name="trash" size={15} color="red"/>
                 </TouchableOpacity>}
 
+                <Generator toggleGenerator={this.toggleGenerator} generatorVisible={generatorVisible}/>
             </View>
         );
     }

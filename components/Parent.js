@@ -49,14 +49,16 @@ export default class Parent extends React.Component {
 
             switch (screen) {
                 case screens.all:
-                    page = <Vault lockApp={this.lockApp} toScreen={this.toScreen}/>;
+                    page = <Vault 
+                    userId={userId}
+                    lockApp={this.lockApp} toScreen={this.toScreen}/>;
                     break;
                 case screens.detail:
                     page = <Detail toScreen={this.toScreen} screenData={screenData}
                     lockApp={this.lockApp}/>
                     break;
                 case screens.add:
-                    page = <Add toScreen={this.toScreen}/>;
+                    page = <Add userId={userId} toScreen={this.toScreen}/>;
                     break;
                 default:
                     page = <Locked/>;
@@ -68,6 +70,7 @@ export default class Parent extends React.Component {
             <View style={styles.container}>
                 <View style={styles.content}>
                     {page}
+                    
                 </View>
                 <FlashMessage position="bottom"/>
             </View>

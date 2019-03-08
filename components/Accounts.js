@@ -15,11 +15,13 @@ export default class Accounts extends React.Component {
     }
 
     componentDidMount() {
+        const {userId}=this.props;
+        
         const setStateAccounts = accountArr => {
             this.setState({accounts: accountArr})
         }
 
-        accountApi.getAll(setStateAccounts)
+        accountApi.getAll(userId, setStateAccounts)
     }
 
     renderAccounts = accounts => {
