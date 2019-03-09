@@ -318,6 +318,8 @@ export default class Detail extends React.Component {
                         toScreen(screens.all)
                     }}/>}
 
+                    <Button title="Generator" onPress={()=>{this.toggleGenerator(true)}}/>
+
                     {mode === modes.edit || <Icon name="lock" size={30} color="grey" onPress={lockApp}/>}
 
                 </View>
@@ -354,12 +356,6 @@ export default class Detail extends React.Component {
                             />
       </MenuTrigger>
       <MenuOptions>
-        <MenuOption style={styles.menuOption} onSelect={() => {
-          this.toggleGenerator(true)
-        }} >
-        <Text style={{fontSize: 20}}>Generator</Text>
-        </MenuOption>
-
         <MenuOption style={styles.menuOption} onSelect={() => {
             this.backupBeforeEdit(() => {
                 this.toMode(modes.edit);

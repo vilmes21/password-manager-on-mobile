@@ -14,6 +14,7 @@ import FlashMessage from "react-native-flash-message";
 import screens from '../consts/screens';
 import bcrypt from '../consts/bcryptConfig'
 import userApi from '../db/userApi'
+import isStringBad from '../consts/isStringBad'
 
 export default class Locked extends React.Component {
     state = {
@@ -53,6 +54,7 @@ export default class Locked extends React.Component {
     render() {
         const {masterPW, email, visible} = this.state;
         const {toScreen} = this.props;
+        const disableSubmit = isStringBad(email) || email.indexOf("@") === -1 || isStringBad(masterPW);
 
         return (
             <View>
@@ -63,6 +65,7 @@ export default class Locked extends React.Component {
                     justifyContent: 'center'
                 }}>
                     <Icon name="lock" size={150} color="grey"/>
+
                 </View>
 
                 <View
@@ -109,7 +112,7 @@ export default class Locked extends React.Component {
                         onPress={this.toggleVisibility}/>
                 </View>
 
-                <Button onPress={this.tryUnlock} title="Done"/>
+                <Button disabled={disableSubmit} onPress={this.tryUnlock} title="Done"/>
                 <Button
                     onPress={() => {
                     toScreen(screens.signup)
