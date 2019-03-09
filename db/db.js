@@ -1,6 +1,14 @@
 import {SQLite} from 'expo';
+import salt from './salt';
 
 const myNote = "\n*****************my note **************\n";
+
+salt.getSalt().then(salt => {
+    if (!salt){
+        salt.setSalt()
+    }
+})
+
 const db = SQLite.openDatabase("testDB");
 
 const selectSth = () => {
@@ -31,25 +39,29 @@ const selectSth = () => {
 }
 
 db.transaction(tx => {
-    // tx.executeSql('drop table user');
-    // tx.executeSql('drop table account');
+    // tx.executeSql('drop table user'); tx.executeSql('drop table account');
     // tx.executeSql('drop table detail');
 
-    tx.executeSql('create table if not exists user (id integer primary key not null, email varchar(255), password text, UNIQUE (email))');
+    tx.executeSql('create table if not exists user (id integer primary key not null, email varchar(' +
+            '255), password text, UNIQUE (email))');
 
-    //tx.executeSql('insert into user (email, password, saltPrefix) values ("b@test.com", "123", "abcd")');
+    // tx.executeSql('insert into user (email, password, saltPrefix) values
+    // ("b@test.com", "123", "abcd")');
 
-    tx.executeSql('create table if not exists account (id integer primary key not null, userId integer, title text, saltPrefix text, FOREIGN KEY (userId) REFERENCES user(id))');
+    tx.executeSql('create table if not exists account (id integer primary key not null, userId inte' +
+            'ger, title text, saltPrefix text, FOREIGN KEY (userId) REFERENCES user(id))');
 
-    tx.executeSql('create table if not exists detail (id integer primary key not null, accountId integer, key text not null, value text not null, saltPrefix text, FOREIGN KEY (accountId) REFERENCES account(id))');
+    tx.executeSql('create table if not exists detail (id integer primary key not null, accountId in' +
+            'teger, key text not null, value text not null, saltPrefix text, FOREIGN KEY (acc' +
+            'ountId) REFERENCES account(id))');
 
     // tx.executeSql('insert into account (title) values ("first titre")');
-    // tx.executeSql('insert into detail (accountId, key, value) values (1, "one key","first val")');
+    // tx.executeSql('insert into detail (accountId, key, value) values (1, "one
+    // key","first val")');
 
 }, e => {
     console.log(myNote + "something Erred, e:", e)
-}, () => {
-});
+}, () => {});
 
 selectSth()
 
