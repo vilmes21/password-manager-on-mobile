@@ -18,16 +18,13 @@ import Generator from './Generator'
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {showMessage, hideMessage} from "react-native-flash-message";
 import modes from '../consts/modes'
-import {
-    Menu,
-    MenuOptions,
-    MenuOption,
-    MenuTrigger,
-  } from 'react-native-popup-menu';
+import {Menu, MenuOptions, MenuOption, MenuTrigger} from 'react-native-popup-menu';
 
 export default class Detail extends React.Component {
     state = {
-        mode: this.props.screenData.isNew? modes.edit : modes.read,
+        mode: this.props.screenData.isNew
+            ? modes.edit
+            : modes.read,
         savedArr: [],
         newRowArr: [],
         hasMadeEdits: false,
@@ -132,12 +129,12 @@ export default class Detail extends React.Component {
             return null;
         }
 
-        const {mode}= this.state;
-        const { isNew, accountTitle} = this.props.screenData;
+        const {mode} = this.state;
+        const {isNew, accountTitle} = this.props.screenData;
 
         return newRowArr.map((row, index) => {
             return <DetailItem
-            accountTitle= {accountTitle}
+                accountTitle={accountTitle}
                 rmItemFromNewArr={this.rmItemFromNewArr}
                 rmItemFromSavedArr={this.rmItemFromSavedArr}
                 isNew={isNew}
@@ -165,14 +162,11 @@ export default class Detail extends React.Component {
 
         const changedRowCount = toSend.newRowArr.length;
 
-        if (changedRowCount === 0){
+        if (changedRowCount === 0) {
             this.toMode(modes.read);
             this.getDetailsFromDB();
-            
-            this.setState({
-                newRowArr: [],
-                hasMadeEdits: false
-            })
+
+            this.setState({newRowArr: [], hasMadeEdits: false})
             //since 0 item no need to alert
             return;
         }
@@ -180,7 +174,7 @@ export default class Detail extends React.Component {
         const afterSaveDo = () => {
             this.toMode(modes.read);
             this.getDetailsFromDB();
-            
+
             this.setState({
                 newRowArr: [],
                 hasMadeEdits: false
@@ -223,13 +217,13 @@ export default class Detail extends React.Component {
             return null;
         }
 
-        const {mode}=this.state;
+        const {mode} = this.state;
 
-        const { accountTitle} = this.props.screenData;
+        const {accountTitle} = this.props.screenData;
 
         return savedArr.map(row => {
             return <DetailItem
-            accountTitle={accountTitle}
+                accountTitle={accountTitle}
                 rmItemFromNewArr={this.rmItemFromNewArr}
                 rmItemFromSavedArr={this.rmItemFromSavedArr}
                 isNew={false}
@@ -291,7 +285,7 @@ export default class Detail extends React.Component {
     }
 
     render() {
-        const {generatorVisible,savedArr, newRowArr, mode,hasMadeEdits} = this.state;
+        const {generatorVisible, savedArr, newRowArr, mode, hasMadeEdits} = this.state;
         const {screenData, toScreen, lockApp} = this.props;
         const {isNew, accountId, accountTitle} = screenData;
 
@@ -318,7 +312,11 @@ export default class Detail extends React.Component {
                         toScreen(screens.all)
                     }}/>}
 
-                    <Button title="Generator" onPress={()=>{this.toggleGenerator(true)}}/>
+                    {mode === modes.edit && < Button title = "Generator" onPress = {
+                        () => {
+                            this.toggleGenerator(true)
+                        }
+                    } />}
 
                     {mode === modes.edit || <Icon name="lock" size={30} color="grey" onPress={lockApp}/>}
 
@@ -332,7 +330,7 @@ export default class Detail extends React.Component {
                     flexDirection: 'row',
                     justifyContent: 'center'
                 }}>
-                
+
                     <View>
                         <Text
                             style={{
@@ -344,40 +342,44 @@ export default class Detail extends React.Component {
                         </Text>
                     </View>
 
-{mode === modes.read &&
-                    <View>
-    
-    <Menu>
-      <MenuTrigger>
-      <Icon
-                            name="ellipsis-v"
-                            size={30}
-                            color="grey"
-                            />
-      </MenuTrigger>
-      <MenuOptions>
-        <MenuOption style={styles.menuOption} onSelect={() => {
-            this.backupBeforeEdit(() => {
-                this.toMode(modes.edit);
-            });
-        }} >
-        <Text style={{fontSize: 20}}>Edit mode</Text>
-        </MenuOption>
+                    {mode === modes.read && <View>
 
-        <MenuOption style={styles.menuOption}  onSelect={() => {
-                    this.toMode(modes.delete);
-        }} >
-          <Text style={{color: 'red', fontSize: 20}}>Deletion mode</Text>
-        </MenuOption>
-       
-      </MenuOptions>
-    </Menu>
+                        <Menu>
+                            <MenuTrigger>
+                                <Icon name="ellipsis-v" size={30} color="grey"/>
+                            </MenuTrigger>
+                            <MenuOptions>
+                                <MenuOption
+                                    style={styles.menuOption}
+                                    onSelect={() => {
+                                    this.backupBeforeEdit(() => {
+                                        this.toMode(modes.edit);
+                                    });
+                                }}>
+                                    <Text
+                                        style={{
+                                        fontSize: 20
+                                    }}>Edit mode</Text>
+                                </MenuOption>
 
-  
-  </View>
-  }
+                                <MenuOption
+                                    style={styles.menuOption}
+                                    onSelect={() => {
+                                    this.toMode(modes.delete);
+                                }}>
+                                    <Text
+                                        style={{
+                                        color: 'red',
+                                        fontSize: 20
+                                    }}>Deletion mode</Text>
+                                </MenuOption>
 
-                
+                            </MenuOptions>
+                        </Menu>
+
+                    </View>
+}
+
                 </View>
 
                 <ScrollView>
@@ -402,16 +404,16 @@ export default class Detail extends React.Component {
                     padding: 20
                 }}></View>
 
-{mode === modes.edit && !isNew && <Button onPress={this.cancelEdits} title="Cancel edits"/>
+                {mode === modes.edit && !isNew && <Button onPress={this.cancelEdits} title="Cancel edits"/>
 }
 
                 {mode === modes.edit && <Button disabled={!hasMadeEdits} onPress={this.saveRows} title="Save"/>}
 
-{
-    mode === modes.delete &&
-<Button onPress={()=>{
+                {mode === modes.delete && <Button
+                    onPress={() => {
                     this.toMode(modes.read);
-                }} title="Done"/>
+                }}
+                    title="Done"/>
 }
 
                 {mode === modes.delete && <TouchableOpacity
@@ -424,7 +426,9 @@ export default class Detail extends React.Component {
                     <Icon name="trash" size={15} color="red"/>
                 </TouchableOpacity>}
 
-                <Generator toggleGenerator={this.toggleGenerator} generatorVisible={generatorVisible}/>
+                <Generator
+                    toggleGenerator={this.toggleGenerator}
+                    generatorVisible={generatorVisible}/>
             </View>
         );
     }

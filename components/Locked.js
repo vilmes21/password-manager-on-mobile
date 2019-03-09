@@ -58,67 +58,89 @@ export default class Locked extends React.Component {
 
         return (
             <View>
-                <View
-                    style={{
-                    display: "flex",
-                    flexDirection: 'row',
-                    justifyContent: 'center'
-                }}>
+                <View style={styles.rowCenter}>
                     <Icon name="lock" size={150} color="grey"/>
+                </View>
 
+                <View style={styles.colCenter}>
+
+                    <View style={styles.rowCenter}>
+                        <TextInput
+                            style={{
+                            fontSize: 25
+                        }}
+                            type="email"
+                            name="email"
+                            value={email}
+                            onChangeText={txt => {
+                            this.handleChange(txt, "email")
+                        }}
+                            placeholder="your@email.com"/>
+                    </View>
+
+                    <View style={styles.rowCenter}>
+
+                        <TextInput
+                            style={{
+                            fontSize: 25
+                        }}
+                            secureTextEntry={!visible}
+                            type="password"
+                            name="masterPW"
+                            value={masterPW}
+                            onChangeText={txt => {
+                            this.handleChange(txt, "masterPW")
+                        }}
+                            placeholder="Open Sesame..."/>
+
+                        <Icon
+                            style={{
+                            marginLeft: 25
+                        }}
+                            name={visible
+                            ? "eye-slash"
+                            : "eye"}
+                            size={30}
+                            color="grey"
+                            onPress={this.toggleVisibility}/>
+                    </View>
                 </View>
 
                 <View
                     style={{
-                    display: "flex",
-                    flexDirection: 'column',
-                    justifyContent: 'center'
+                    paddingTop: 30,
+                    paddingBottom: 80
                 }}>
 
-                    <TextInput
-                        style={{
-                        fontSize: 25
-                    }}
-                        type="email"
-                        name="email"
-                        value={email}
-                        onChangeText={txt => {
-                        this.handleChange(txt, "email")
-                    }}
-                        placeholder="your@email.com"/>
-
-                    <TextInput
-                        style={{
-                        fontSize: 25
-                    }}
-                        secureTextEntry={!visible}
-                        type="password"
-                        name="masterPW"
-                        value={masterPW}
-                        onChangeText={txt => {
-                        this.handleChange(txt, "masterPW")
-                    }}
-                        placeholder="Open Sesame..."/>
-
-                    <Icon
-                        style={{
-                        marginLeft: 25
-                    }}
-                        name={visible
-                        ? "eye-slash"
-                        : "eye"}
-                        size={30}
-                        color="grey"
-                        onPress={this.toggleVisibility}/>
+                    <Button disabled={disableSubmit} onPress={this.tryUnlock} title="Done"/>
                 </View>
 
-                <Button disabled={disableSubmit} onPress={this.tryUnlock} title="Done"/>
                 <Button
                     onPress={() => {
                     toScreen(screens.signup)
                 }}
                     title="Sign up"/>
+
+<Button
+                    onPress={() => {
+                    Clipboard.setString("Nothing here");
+                    showMessage({message: "Cleared", type: "success"})
+                }}
+                    title="Clear copied"/>
             </View>
         );
     }
 }
+
+const styles = StyleSheet.create({
+    rowCenter: {
+        display: "flex",
+        flexDirection: 'row',
+        justifyContent: 'center'
+    },
+    colCenter: {
+        display: "flex",
+        flexDirection: 'column',
+        justifyContent: 'center'
+    }
+})

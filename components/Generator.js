@@ -13,20 +13,19 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import pwGenerator from '../consts/pwGenerator';
 import CheckBox from 'react-native-check-box'
 
+const placeholder = "Refresh to generate";
+
 export default class Generator extends Component {
     state = {
         len: 20,
         includeSpecialChar: true,
-        txt: "Generating..."
-    }
-
-    componentDidMount() {
-        setTimeout(this.generateNew, 3000)
+        txt: placeholder
     }
 
     toggleSpecialChar = () => {
         this.setState({
-            includeSpecialChar: !this.state.includeSpecialChar
+            includeSpecialChar: !this.state.includeSpecialChar,
+            txt: placeholder
         })
     }
 
@@ -40,13 +39,22 @@ export default class Generator extends Component {
         Clipboard.setString(this.state.txt);
         this
             .props
-            .toggleGenerator(false)
+            .toggleGenerator(false);
+        this.setState({txt: placeholder})
     }
 
     changeLen = len => {
         if (len.toString().length < 3) {
             this.setState({len})
         }
+    }
+
+    clickLen = isAdding => {
+        let {len} = this.state;
+        len = isAdding
+            ? len + 1
+            : len - 1;
+        this.setState({len, txt: placeholder})
     }
 
     render() {
@@ -72,16 +80,21 @@ export default class Generator extends Component {
                         <Text
                             style={{
                             fontSize: 25,
-                            fontWeight: "bold"
+                            fontWeight: "bold",
+                            paddingBottom: 30
                         }}>Password Generater</Text>
 
                         <View
                             style={{
                             display: "flex",
                             flexDirection: "row",
-                            justifyContent: "flex-start"
+                            justifyContent: "space-between"
                         }}>
-                            <Text>Length</Text>
+                            <Text
+                                style={{
+                                paddingRight: 25
+                            }}>Length:
+                            </Text>
                             <TextInput
                                 type="number"
                                 name="len"
@@ -96,7 +109,9 @@ export default class Generator extends Component {
                                 name="minus"
                                 size={20}
                                 color="grey"
-                                onPress={() => {}}/>
+                                onPress={() => {
+                                this.clickLen(false)
+                            }}/>
 
                             <Icon
                                 style={{
@@ -105,7 +120,9 @@ export default class Generator extends Component {
                                 name="plus"
                                 size={20}
                                 color="grey"
-                                onPress={() => {}}/>
+                                onPress={() => {
+                                this.clickLen(true)
+                            }}/>
                         </View>
 
                         <View
@@ -115,6 +132,7 @@ export default class Generator extends Component {
                         }}>
                             <CheckBox
                                 style={{
+                                flex: 1,
                                 paddingRight: 10
                             }}
                                 onClick={this.toggleSpecialChar}
