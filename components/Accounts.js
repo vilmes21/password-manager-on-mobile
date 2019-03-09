@@ -8,17 +8,20 @@ import accountApi from '../db/accountApi'
 import {showMessage, hideMessage} from "react-native-flash-message";
 import FlashMessage from "react-native-flash-message";
 import Icon from 'react-native-vector-icons/FontAwesome';
+import humanizeAccounts from '../consts/humanizeAccounts'
 
 export default class Accounts extends React.Component {
     state = {
         accounts: []
     }
 
-    componentDidMount() {
+    componentDidMount =  () =>{
         const {userId}=this.props;
         
-        const setStateAccounts = accountArr => {
-            this.setState({accounts: accountArr})
+        const setStateAccounts = async accountArr => {
+            // console.log("22222 accountArr:", accountArr)
+            const accounts = await humanizeAccounts(accountArr);
+            this.setState({accounts})
         }
 
         accountApi.getAll(userId, setStateAccounts)

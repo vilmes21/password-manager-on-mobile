@@ -4,6 +4,8 @@ import screens from '../consts/screens'
 import db from '../db/db'
 import accountApi from '../db/accountApi'
 import isStringBad from '../consts/isStringBad'
+import pwGenerator from '../consts/pwGenerator';
+import crypt from '../consts/crypt';
 
 export default class Add extends React.Component {
     state = {
@@ -13,7 +15,34 @@ export default class Add extends React.Component {
     handleChange = txt => {
         this.setState({title: txt})
     }
-    
+
+    submit = async() => {
+        const {toScreen, userId} = this.props;
+        const {title} = this.state;
+        const saltPrefix = pwGenerator(6, true);
+        const encryptedTitle = await crypt.en(title, saltPrefix);
+
+        if (!encryptedTitle){
+            alert("Encryption error");
+            return;
+        }
+
+        const callback = insertId => {
+            toScreen(screens.detail, {
+                accountId: insertId,
+                editable: true,
+                accountTitle: title,
+                isNew: true
+            })
+        }
+
+        accountApi.addAccount({
+            title: encryptedTitle,
+            userId,
+            saltPrefix
+        }, callback);
+    }
+
     render() {
         const {title} = this.state;
         const {toScreen, userId} = this.props;
@@ -44,20 +73,7 @@ export default class Add extends React.Component {
                     }}
                         title="Cancel"/>
 
-                    <Button
-                        disabled={disableNext}
-                        onPress={() => {
-                        const callback = insertId => {
-                            toScreen(screens.detail, {
-                                accountId: insertId,
-                                editable: true,
-                                accountTitle: title,
-                                isNew: true
-                            })
-                        }
-                        accountApi.addAccount({title, userId}, callback);
-                    }}
-                        title="Next"/>
+                    <Button disabled={disableNext} onPress={this.submit} title="Next"/>
                 </View>
             </View>
         );

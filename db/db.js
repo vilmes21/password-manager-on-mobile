@@ -14,7 +14,7 @@ const db = SQLite.openDatabase("testDB");
 const selectSth = () => {
 
     const callback = tx => {
-        const sqlStatement = "select * from user";
+        const sqlStatement = "select * from account";
         const args = [];
         const suc2 = (tx, resultSet) => {
             console.log(myNote + "suc2 fn, resultSet: ", resultSet)

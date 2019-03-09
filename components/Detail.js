@@ -179,16 +179,15 @@ export default class Detail extends React.Component {
                 newRowArr: [],
                 hasMadeEdits: false
             }, () => {
-                Alert.alert(`Saved for: ${accountTitle}`, `${changedRowCount} item${changedRowCount > 1
-                    ? "s"
-                    : ""}`, [
-                    {
-                        text: 'OK',
-                        onPress: () => {}
-                    }
-                ], {
-                    cancelable: true
-                },);
+
+                showMessage({
+                    type: "success",
+                    message: `${changedRowCount} item${changedRowCount > 1
+                        ? "s"
+                        : ""} under ${accountTitle} saved`
+                })
+                
+            
             });
         }
         detailApi.saveMany(toSend, afterSaveDo)

@@ -13,6 +13,7 @@
     "react-native": "https://github.com/expo/react-native/archive/sdk-32.0.0.tar.gz",
     "react-native-bcrypt": "2.4.0",
     "react-native-check-box": "2.1.7",
+    "react-native-crypto-js": "1.0.0",
     "react-native-flash-message": "0.1.11",
     "react-native-modal": "9.0.0",
     "react-native-popup-menu": "0.15.4",
