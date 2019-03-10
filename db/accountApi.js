@@ -10,13 +10,12 @@ const addAccount = ({
     saltPrefix
 }, callback) => {
     const fnName = " <addAccount fn> ";
-    console.log(myNote + fnName + "entered fn, title: ", title)
 
     db.transaction(tx => {
         tx.executeSql(`insert into account (title, userId, saltPrefix) values (?, ?, ?)`, [
             title, userId, saltPrefix
         ], (_, returned) => {
-            console.log(myNote + fnName + " succeeded, returned: ", returned);
+          
             callback(returned.insertId)
         }, e => {
             console.log(myNote + fnName + "executeSql err fn, e: ", e)
@@ -31,7 +30,7 @@ const getAll = (userId, callback) => {
     const fnName = " <getAll fn> ";
     db.transaction(tx => {
         tx.executeSql(`select * from account where userId=?`, [userId], (_, returned) => {
-            console.log(myNote + fnName + " succeeded, returned: ", returned);
+           
             callback(returned.rows._array)
         }, e => {
             console.log(myNote + fnName + "executeSql err fn, e: ", e)

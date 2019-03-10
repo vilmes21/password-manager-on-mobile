@@ -39,10 +39,7 @@ const pwGenerator = (len, includeSpecialChar) => {
         i++;
     }
 
-    console.log("BEFORE SHUFFLE: ", finalArr.join(""))
-    const ddd = shuffle(finalArr).join("")
-    console.log("AFTER  SHUFFLE: ", ddd)
-    return (ddd)
+    return shuffle(finalArr).join("")
 }
 
 export default pwGenerator

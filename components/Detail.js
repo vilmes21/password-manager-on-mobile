@@ -19,6 +19,8 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import {showMessage, hideMessage} from "react-native-flash-message";
 import modes from '../consts/modes'
 import {Menu, MenuOptions, MenuOption, MenuTrigger} from 'react-native-popup-menu';
+import crypt from '../consts/crypt';
+import salt from '../db/salt';
 
 export default class Detail extends React.Component {
     state = {
@@ -30,6 +32,16 @@ export default class Detail extends React.Component {
         hasMadeEdits: false,
         beforeEditArr: [],
         generatorVisible: false
+    }
+
+    componentDidMount() {
+        const {isNew} = this.props.screenData;
+
+        if (isNew) {
+            this.addRow();
+        } else {
+            this.getDetailsFromDB()
+        }
     }
 
     toggleGenerator = generatorVisible => {
@@ -76,21 +88,16 @@ export default class Detail extends React.Component {
         this.setState({savedArr: beforeEditArr, newRowArr: []})
     }
 
-    componentDidMount() {
-        const {isNew} = this.props.screenData;
-
-        if (isNew) {
-            this.addRow();
-        } else {
-            this.getDetailsFromDB()
-        }
-    }
-
     getDetailsFromDB = () => {
         const {accountId} = this.props.screenData;
 
-        const afterGettingDetailsDo = savedArr => {
-            this.setState({savedArr})
+        const afterGettingDetailsDo = async savedArr => {
+            let decryptedArr = [];
+            if (savedArr.length > 0){
+                decryptedArr = await crypt.deDetails(savedArr);
+            }
+
+            this.setState({savedArr: decryptedArr})
         }
         detailApi.getDetailByAccountId(accountId, afterGettingDetailsDo)
     }
@@ -146,7 +153,7 @@ export default class Detail extends React.Component {
         })
     }
 
-    saveRows = () => {
+    saveRows = async() => {
         const {newRowArr, savedArr} = this.state;
 
         const modifiedArr = savedArr.length > 0
@@ -160,9 +167,34 @@ export default class Detail extends React.Component {
             newRowArr: newRowArr.concat(modifiedArr)
         }
 
-        const changedRowCount = toSend.newRowArr.length;
+        const saltSuffix = await salt.getSalt();
+        if (!saltSuffix) {
+            alert("Failed getting encryption salt");
+            return;
+        }
 
-        if (changedRowCount === 0) {
+        toSend.newRowArr = crypt.enDetails(toSend.newRowArr, saltSuffix);
+
+        /*
+        toSendShape=[
+     {
+      "key": "Pw",
+      "value": "123d",
+      {
+    },
+      "accountId": 13,
+      "id": 25,
+      "key": "Username2",
+      "modified": true,
+      "saltPrefix": null,
+      "value": "dsaf",
+    },
+  ]
+        */
+
+        
+
+        if (toSend.newRowArr.length === 0) {
             this.toMode(modes.read);
             this.getDetailsFromDB();
 
@@ -171,7 +203,7 @@ export default class Detail extends React.Component {
             return;
         }
 
-        const afterSaveDo = () => {
+        const afterSaveDo = changedRowCount => {
             this.toMode(modes.read);
             this.getDetailsFromDB();
 
@@ -186,8 +218,7 @@ export default class Detail extends React.Component {
                         ? "s"
                         : ""} under ${accountTitle} saved`
                 })
-                
-            
+
             });
         }
         detailApi.saveMany(toSend, afterSaveDo)

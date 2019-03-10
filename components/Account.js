@@ -25,7 +25,7 @@ export default class Account extends React.Component {
                     <Text style={{
                         fontSize: 30
                     }}>
-                        {id}. {title}
+                        {title}
                     </Text>
                 </TouchableOpacity>
             </View>

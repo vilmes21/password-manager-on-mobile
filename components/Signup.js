@@ -13,6 +13,10 @@ import {showMessage} from 'react-native-flash-message';
 import isStringBad from '../consts/isStringBad'
 import userApi from '../db/userApi'
 import bcrypt from '../consts/bcryptConfig'
+import salt from '../db/salt';
+import pwGenerator from '../consts/pwGenerator';
+import saltPassword from '../consts/saltPassword';
+import consts from '../consts/consts';
 
 export default class Signup extends React.Component {
     state = {
@@ -23,28 +27,30 @@ export default class Signup extends React.Component {
     }
 
     handleChange = (txt, name) => {
-        this.setState({
-            [name]: txt
-        })
+        this.setState({[name]: txt})
     }
 
-    submitForm = () => {
+    submitForm = async () => {
         const {password, confirmPW, email} = this.state;
         if (password !== confirmPW) {
             showMessage({message: "Password must match", type: "danger"});
             return;
         }
 
+        const saltPrefix = pwGenerator(consts.saltPrefixLength, true);
         const saltRounds = 10;
-        var hashedPW = bcrypt.hashSync(password, bcrypt.genSaltSync(saltRounds));
+        var hashedPW = bcrypt.hashSync(await saltPassword(password, saltPrefix), bcrypt.genSaltSync(saltRounds));
 
-        const afterInsert = insertId =>{
-            this.props.unlockApp(insertId);
+        const afterInsert = insertId => {
+            this
+                .props
+                .unlockApp(insertId);
         };
 
         userApi.insert({
             email: email.toLowerCase(),
-            password: hashedPW
+            password: hashedPW,
+            saltPrefix
         }, afterInsert)
 
     }
@@ -56,8 +62,7 @@ export default class Signup extends React.Component {
         const disableNext = isStringBad(email) || isStringBad(password) || isStringBad(confirmPW);
 
         return (
-            <View
-                >
+            <View >
                 <View
                     style={{
                     display: "flex",
@@ -65,9 +70,7 @@ export default class Signup extends React.Component {
                     justifyContent: 'space-between'
                 }}>
 
-                    <Button
-                        onPress={lockApp}
-                        title="Cancel"/>
+                    <Button onPress={lockApp} title="Cancel"/>
 
                 </View>
 

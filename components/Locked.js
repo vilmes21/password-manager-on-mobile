@@ -15,6 +15,7 @@ import screens from '../consts/screens';
 import bcrypt from '../consts/bcryptConfig'
 import userApi from '../db/userApi'
 import isStringBad from '../consts/isStringBad'
+import saltPassword from '../consts/saltPassword';
 
 export default class Locked extends React.Component {
     state = {
@@ -39,8 +40,10 @@ export default class Locked extends React.Component {
         const {email, masterPW} = this.state;
         const {toScreen, unlockApp} = this.props;
 
-        const afterPWCompare = user => {
-            if (user && bcrypt.compareSync(masterPW, user.password)) {
+        const afterPWCompare = async user => {
+            const saltedPW = await saltPassword(masterPW, user.saltPrefix);
+
+            if (user && bcrypt.compareSync(saltedPW, user.password)) {
                 this.setState({masterPW: ""});
                 unlockApp(user.id);
             } else {
@@ -121,7 +124,7 @@ export default class Locked extends React.Component {
                 }}
                     title="Sign up"/>
 
-<Button
+                <Button
                     onPress={() => {
                     Clipboard.setString("Nothing here");
                     showMessage({message: "Cleared", type: "success"})

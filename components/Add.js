@@ -6,6 +6,8 @@ import accountApi from '../db/accountApi'
 import isStringBad from '../consts/isStringBad'
 import pwGenerator from '../consts/pwGenerator';
 import crypt from '../consts/crypt';
+import consts from '../consts/consts';
+import salt from '../db/salt';
 
 export default class Add extends React.Component {
     state = {
@@ -19,8 +21,14 @@ export default class Add extends React.Component {
     submit = async() => {
         const {toScreen, userId} = this.props;
         const {title} = this.state;
-        const saltPrefix = pwGenerator(6, true);
-        const encryptedTitle = await crypt.en(title, saltPrefix);
+        const saltPrefix = pwGenerator(consts.saltPrefixLength, true);
+        const saltSuffix = await salt.getSalt();
+        if (!saltSuffix){
+            alert("Failed getting encryption salt");
+            return;
+        }
+        
+        const encryptedTitle = crypt.en(title, saltPrefix + saltSuffix);
 
         if (!encryptedTitle){
             alert("Encryption error");
