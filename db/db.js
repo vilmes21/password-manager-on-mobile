@@ -3,11 +3,18 @@ import salt from './salt';
 
 const myNote = "\n*****************my note **************\n";
 
-salt.getSalt().then(salt => {
-    if (!salt){
+(async() => {
+    try {
+        const saltSuffix = await salt.getSalt();
+        if (!saltSuffix) {
+            alert(saltSuffix + "<< saltSuffix. need to set")
+            salt.setSalt()
+        }
+    } catch (e) {
+        alert("wrapped async errr blocl. e: " + e)
         salt.setSalt()
     }
-})
+})()
 
 const db = SQLite.openDatabase("testDB");
 
@@ -33,18 +40,17 @@ const selectSth = () => {
         console.log(myNote + "Error fn, e: ", e)
     };
 
-    const success = () => {
-    };
+    const success = () => {};
 
     db.transaction(callback, error, success)
 }
 
 db.transaction(tx => {
-    // tx.executeSql('drop table detail');
-    // tx.executeSql('drop table account');
-    // tx.executeSql('drop table user'); 
+    // tx.executeSql('drop table detail'); tx.executeSql('drop table account');
+    // tx.executeSql('drop table user');
 
-    tx.executeSql('create table if not exists user (id integer primary key not null, email varchar(255), password text, saltPrefix text, UNIQUE (email))');
+    tx.executeSql('create table if not exists user (id integer primary key not null, email varchar(' +
+            '255), password text, saltPrefix text, UNIQUE (email))');
 
     tx.executeSql('create table if not exists account (id integer primary key not null, userId inte' +
             'ger, title text, saltPrefix text, FOREIGN KEY (userId) REFERENCES user(id))');

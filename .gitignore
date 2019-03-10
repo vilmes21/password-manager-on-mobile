@@ -7,3 +7,4 @@ npm-debug.*
 *.mobileprovision
 test/
 assets/
+.DS_Store

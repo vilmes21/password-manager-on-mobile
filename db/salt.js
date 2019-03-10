@@ -5,9 +5,12 @@ const ratLoverSaltName = "ratLoverSalt";
 
 const setSalt = () => {
     try {
-        SecureStore.setItemAsync(ratLoverSaltName, pwGenerator(25, true), {keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY})
+        SecureStore.setItemAsync(ratLoverSaltName, pwGenerator(25, true), {
+            keychainService: "Alias",
+            keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY})
         .then(x => {})
     } catch (e) {
+        alert("init setting salt failed!")
         console.log("SecureStore.setItemAsync, e:\n", e)
     }
 }
