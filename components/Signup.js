@@ -27,7 +27,9 @@ export default class Signup extends React.Component {
     }
 
     handleChange = (txt, name) => {
-        this.setState({[name]: txt})
+        if (txt.indexOf(" ") === -1){
+            this.setState({[name]: txt})
+        }
     }
 
     submitForm = async () => {

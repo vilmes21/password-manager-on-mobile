@@ -1,6 +1,6 @@
 import {SecureStore} from 'expo';
 import pwGenerator from '../consts/pwGenerator';
-import {Platform, StyleSheet} from 'react-native';
+import {AsyncStorage, Platform, StyleSheet} from 'react-native';
 import SInfo from 'react-native-sensitive-info'
 
 const isIOSFn = () => {
@@ -9,15 +9,11 @@ const isIOSFn = () => {
 
 const isIOS = isIOSFn();
 
-// alert("isIOS 777778: "+ isIOS)
-
 const ratLoverSaltName = "ratLoverSalt";
 
 const setSaltIOS = async() => {
     try {
-        return await SecureStore.setItemAsync(ratLoverSaltName, pwGenerator(25, true), {
-            keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY
-        })
+        return await SecureStore.setItemAsync(ratLoverSaltName, pwGenerator(25, true), {keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY})
     } catch (e) {
         alert("init setting salt failed!")
         console.log("SecureStore.setItemAsync, e:\n", e)
@@ -25,9 +21,15 @@ const setSaltIOS = async() => {
     return false;
 };
 
-const setSaltAndroid = () => {
-    return SInfo.setItem(ratLoverSaltName, pwGenerator(25, true), {});
-}
+const setSaltAndroid = async() => {
+    try {
+        await AsyncStorage.setItem(ratLoverSaltName, pwGenerator(25, true));
+        return true;
+    } catch (e) {
+        alert("setSaltAndroid e block")
+    }
+    return false;
+};
 
 const setSalt = isIOS
     ? setSaltIOS
@@ -43,9 +45,15 @@ const getSaltISO = async() => {
     return false;
 }
 
-const getSaltAndroid = () => {
-    return SInfo.getItem(ratLoverSaltName, {});
-}
+const getSaltAndroid = async () => {
+    try {
+      const value = await AsyncStorage.getItem(ratLoverSaltName);
+      return true;
+    } catch (e) {
+      alert("getSaltAndroid e: " + e)
+    }
+    return false;
+  };
 
 const getSalt = isIOS
     ? getSaltISO

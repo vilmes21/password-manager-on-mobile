@@ -88,7 +88,7 @@ export default class ChangeMaster extends React.Component {
             isProcessing
         } = this.state;
 
-        const disableSubmit = !current || !neww || !newwAgain;
+        const disableSubmit = isProcessing || !current || !neww || !newwAgain;
 
         return (
             <View>
