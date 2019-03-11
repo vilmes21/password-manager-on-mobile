@@ -7,12 +7,15 @@ const myNote = "\n*****************my note **************\n";
     try {
         const saltSuffix = await salt.getSalt();
         if (!saltSuffix) {
-            alert(saltSuffix + "<< saltSuffix. need to set")
-            salt.setSalt()
+            alert(saltSuffix + " <<< saltSuffix. need to set smart")
+            const setWell = await salt.setSalt();
+            if (!setWell) {
+                alert(setWell + "!setWell")
+            }
         }
     } catch (e) {
         alert("wrapped async errr blocl. e: " + e)
-        salt.setSalt()
+        await salt.setSalt()
     }
 })()
 

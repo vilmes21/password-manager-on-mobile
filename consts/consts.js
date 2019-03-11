@@ -1,3 +1,4 @@
 export default {
-    saltPrefixLength: 7
+    saltPrefixLength: 7,
+    saltRounds: 10
 }

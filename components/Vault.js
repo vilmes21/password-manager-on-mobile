@@ -13,11 +13,12 @@ import Accounts from './Accounts'
 import Account from './Account'
 import screens from '../consts/screens'
 import accountApi from '../db/accountApi'
+import {Menu, MenuOptions, MenuOption, MenuTrigger} from 'react-native-popup-menu';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 export default class Vault extends React.Component {
     render() {
-        const {toScreen,lockApp,userId}=this.props;
+        const {toScreen, lockApp, userId} = this.props;
 
         return (
             <View
@@ -34,13 +35,35 @@ export default class Vault extends React.Component {
                     justifyContent: 'space-between'
                 }}>
 
-                    <Icon
-                        name="plus"
-                        size={30}
-                        color="grey"
-                        onPress={() => {
-                        toScreen(screens.add)
-                    }}/>
+                    <Menu>
+                        <MenuTrigger>
+                            <Icon name="ellipsis-v" size={30} color="grey"/>
+                        </MenuTrigger>
+                        <MenuOptions>
+                            <MenuOption
+                                style={styles.menuOption}
+                                onSelect={() => {
+                                toScreen(screens.add)
+                            }}>
+                                <Text
+                                    style={{
+                                    fontSize: 20
+                                }}>Add item</Text>
+                            </MenuOption>
+
+                            <MenuOption
+                                style={styles.menuOption}
+                                onSelect={() => {
+                                toScreen(screens.changeMaster)
+                            }}>
+                                <Text
+                                    style={{
+                                    fontSize: 20
+                                }}>Change master password</Text>
+                            </MenuOption>
+
+                        </MenuOptions>
+                    </Menu>
 
                     <Icon name="lock" size={30} color="grey" onPress={lockApp}/>
 
@@ -71,10 +94,18 @@ export default class Vault extends React.Component {
                     position: 'absolute',
                     top: 45,
                     right: 10
-                }}>
-
-                </View>
+                }}></View>
             </View>
         );
     }
 }
+
+const styles = StyleSheet.create({
+    menuOption: {
+        paddingTop: 15,
+        paddingBottom: 15,
+        paddingLeft: 20,
+        paddingRight: 20,
+        fontSize: 70
+    }
+});

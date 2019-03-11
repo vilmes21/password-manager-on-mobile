@@ -31,7 +31,8 @@ export default class Detail extends React.Component {
         newRowArr: [],
         hasMadeEdits: false,
         beforeEditArr: [],
-        generatorVisible: false
+        generatorVisible: false,
+        isLoading: true
     }
 
     componentDidMount() {
@@ -39,6 +40,7 @@ export default class Detail extends React.Component {
 
         if (isNew) {
             this.addRow();
+            this.setState({isLoading: false})
         } else {
             this.getDetailsFromDB()
         }
@@ -89,15 +91,17 @@ export default class Detail extends React.Component {
     }
 
     getDetailsFromDB = () => {
+        this.setState({isLoading: true})
+
         const {accountId} = this.props.screenData;
 
         const afterGettingDetailsDo = async savedArr => {
             let decryptedArr = [];
-            if (savedArr.length > 0){
+            if (savedArr.length > 0) {
                 decryptedArr = await crypt.deDetails(savedArr);
             }
 
-            this.setState({savedArr: decryptedArr})
+            this.setState({savedArr: decryptedArr, isLoading: false})
         }
         detailApi.getDetailByAccountId(accountId, afterGettingDetailsDo)
     }
@@ -154,6 +158,7 @@ export default class Detail extends React.Component {
     }
 
     saveRows = async() => {
+        this.setState({isLoading: true});
         const {newRowArr, savedArr} = this.state;
 
         const modifiedArr = savedArr.length > 0
@@ -192,13 +197,11 @@ export default class Detail extends React.Component {
   ]
         */
 
-        
-
         if (toSend.newRowArr.length === 0) {
             this.toMode(modes.read);
             this.getDetailsFromDB();
 
-            this.setState({newRowArr: [], hasMadeEdits: false})
+            this.setState({newRowArr: [], hasMadeEdits: false, isLoading: false})
             //since 0 item no need to alert
             return;
         }
@@ -209,7 +212,8 @@ export default class Detail extends React.Component {
 
             this.setState({
                 newRowArr: [],
-                hasMadeEdits: false
+                hasMadeEdits: false,
+                isLoading: false
             }, () => {
 
                 showMessage({
@@ -368,7 +372,7 @@ export default class Detail extends React.Component {
                             fontWeight: "bold",
                             fontSize: 25
                         }}>
-                            {accountId}. {accountTitle}
+                            {accountTitle}
                         </Text>
                     </View>
 

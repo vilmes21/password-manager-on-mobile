@@ -15,6 +15,7 @@ import Locked from './Locked';
 import Add from './Add';
 import Signup from './Signup';
 import Detail from './Detail';
+import ChangeMaster from './ChangeMaster';
 import screens from '../consts/screens';
 
 export default class Parent extends React.Component {
@@ -59,6 +60,9 @@ export default class Parent extends React.Component {
                     break;
                 case screens.add:
                     page = <Add userId={userId} toScreen={this.toScreen}/>;
+                    break;
+                    case screens.changeMaster:
+                    page = <ChangeMaster userId={userId} lockApp={this.lockApp} />;
                     break;
                 default:
                     page = <Locked/>;

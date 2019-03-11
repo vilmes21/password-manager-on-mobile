@@ -6,5 +6,7 @@ export default async (input, saltPrefix) => {
         alert("saltPassword fn !saltSuffix");
         return "";
     }
-    return input + saltPrefix + saltSuffix;
+    const res =input + saltPrefix + saltSuffix;
+    
+    return res;
 }

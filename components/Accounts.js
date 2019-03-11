@@ -12,7 +12,8 @@ import crypt from '../consts/crypt';
 
 export default class Accounts extends React.Component {
     state = {
-        accounts: []
+        accounts: [],
+        isLoading: true
     }
 
     componentDidMount = () => {
@@ -23,6 +24,7 @@ export default class Accounts extends React.Component {
                 const accounts = await crypt.deAccounts(accountArr);
                 this.setState({accounts})
             }
+            this.setState({isLoading: false})
         }
 
         accountApi.getAll(userId, setStateAccounts)
@@ -39,7 +41,11 @@ export default class Accounts extends React.Component {
     }
 
     render() {
-        const {accounts} = this.state;
+        const {accounts, isLoading} = this.state;
+
+        if (isLoading){
+            return <Text>Loading...</Text>;
+        }
 
         return (
             <View>

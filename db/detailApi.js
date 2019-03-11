@@ -7,7 +7,6 @@ const getDetailByAccountId = (accountId, callback) => {
 
     db.transaction(tx => {
         tx.executeSql(`select * from detail where accountId=?`, [accountId], (_, returned) => {
-           
             callback(returned.rows._array)
         }, e => {
             console.log(myNote + fnName + "executeSql err fn, e: ", e)

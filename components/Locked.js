@@ -21,7 +21,8 @@ export default class Locked extends React.Component {
     state = {
         masterPW: "",
         visible: false,
-        email: "test@test.com"
+        email: "test@test.com2",
+        isProcessing: false
     }
 
     handleChange = (txt, name) => {
@@ -36,28 +37,34 @@ export default class Locked extends React.Component {
         })
     }
 
-    tryUnlock = () => {
+    submit = () => {
+        this.setState({isProcessing: true});
+
         const {email, masterPW} = this.state;
         const {toScreen, unlockApp} = this.props;
 
-        const afterPWCompare = async user => {
-            const saltedPW = await saltPassword(masterPW, user.saltPrefix);
+        const afterFindingUser = async user => {
+            if (user) {
+                const saltedPW = await saltPassword(masterPW, user.saltPrefix);
 
-            if (user && bcrypt.compareSync(saltedPW, user.password)) {
-                this.setState({masterPW: ""});
-                unlockApp(user.id);
-            } else {
-                showMessage({message: "Wrong credentials!", type: "danger"});
+                if (bcrypt.compareSync(saltedPW, user.password)) {
+                    this.setState({masterPW: ""});
+                    unlockApp(user.id);
+                    return;
+                }
             }
+
+            showMessage({message: "Wrong credentials!", type: "danger"});
+            this.setState({isProcessing: false});
         }
 
-        userApi.getByEmail(email.toLowerCase(), afterPWCompare);
+        userApi.getByEmail(email.toLowerCase(), afterFindingUser);
     }
 
     render() {
-        const {masterPW, email, visible} = this.state;
+        const {isProcessing, masterPW, email, visible} = this.state;
         const {toScreen} = this.props;
-        const disableSubmit = isStringBad(email) || email.indexOf("@") === -1 || isStringBad(masterPW);
+        const disableSubmit = isProcessing || isStringBad(email) || email.indexOf("@") === -1 || isStringBad(masterPW);
 
         return (
             <View>
@@ -115,21 +122,33 @@ export default class Locked extends React.Component {
                     paddingBottom: 80
                 }}>
 
-                    <Button disabled={disableSubmit} onPress={this.tryUnlock} title="Done"/>
+                    <Button
+                        disabled={disableSubmit}
+                        onPress={this.submit}
+                        title={isProcessing
+                        ? "Processing..."
+                        : "Enter"}/>
                 </View>
 
-                <Button
-                    onPress={() => {
-                    toScreen(screens.signup)
-                }}
-                    title="Sign up"/>
+                <View>
+                    <Button
+                        disabled={isProcessing}
+                        onPress={() => {
+                        toScreen(screens.signup)
+                    }}
+                        title="Sign up"/>
+                </View>
 
-                <Button
-                    onPress={() => {
-                    Clipboard.setString("Nothing here");
-                    showMessage({message: "Cleared", type: "success"})
-                }}
-                    title="Clear copied"/>
+                <View style={{
+                    paddingTop: 40
+                }}>
+                    <Button
+                        onPress={() => {
+                        Clipboard.setString("Nothing here");
+                        showMessage({message: "Cleared", type: "success"})
+                    }}
+                        title="Clear copied"/>
+                </View>
             </View>
         );
     }

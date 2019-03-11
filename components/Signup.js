@@ -38,8 +38,7 @@ export default class Signup extends React.Component {
         }
 
         const saltPrefix = pwGenerator(consts.saltPrefixLength, true);
-        const saltRounds = 10;
-        var hashedPW = bcrypt.hashSync(await saltPassword(password, saltPrefix), bcrypt.genSaltSync(saltRounds));
+        var hashedPW = bcrypt.hashSync(await saltPassword(password, saltPrefix), bcrypt.genSaltSync(consts.saltRounds));
 
         const afterInsert = insertId => {
             this
