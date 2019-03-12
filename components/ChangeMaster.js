@@ -1,18 +1,13 @@
 import React from 'react';
 import {
-    TouchableOpacity,
-    StyleSheet,
     Text,
     TextInput,
     View,
     Button
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import {showMessage, hideMessage} from "react-native-flash-message";
+import {showMessage} from "react-native-flash-message";
 import userApi from '../db/userApi';
-import pwGenerator from '../consts/pwGenerator';
-import consts from '../consts/consts';
-import screens from '../consts/screens';
 
 export default class ChangeMaster extends React.Component {
 
@@ -30,11 +25,7 @@ export default class ChangeMaster extends React.Component {
         const {
             current,
             neww,
-            newwAgain,
-            currentVisible,
-            newwVisible,
-            newwAgainVisible,
-            isProcessing
+            newwAgain
         } = this.state;
 
         const {lockApp, userId} = this.props;

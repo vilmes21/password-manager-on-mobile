@@ -1,7 +1,6 @@
 import React from 'react';
 import {StyleSheet, Text, TextInput, View, Button} from 'react-native';
 import screens from '../consts/screens'
-import db from '../db/db'
 import accountApi from '../db/accountApi'
 import isStringBad from '../consts/isStringBad'
 import pwGenerator from '../consts/pwGenerator';
@@ -53,7 +52,7 @@ export default class Add extends React.Component {
 
     render() {
         const {title} = this.state;
-        const {toScreen, userId} = this.props;
+        const {toScreen} = this.props;
         const disableNext = isStringBad(title);
 
         return (

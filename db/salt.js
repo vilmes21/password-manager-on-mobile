@@ -1,7 +1,6 @@
 import {SecureStore} from 'expo';
 import pwGenerator from '../consts/pwGenerator';
 import {AsyncStorage, Platform, StyleSheet} from 'react-native';
-import SInfo from 'react-native-sensitive-info'
 
 const isIOSFn = () => {
     return Platform.OS === 'ios';

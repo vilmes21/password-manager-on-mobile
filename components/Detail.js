@@ -3,12 +3,10 @@ import {
     StyleSheet,
     Text,
     View,
-    TextInput,
     Alert,
     TouchableOpacity,
     Button,
-    ScrollView,
-    Picker
+    ScrollView
 } from 'react-native';
 import screens from '../consts/screens'
 import detailApi from '../db/detailApi'
@@ -16,7 +14,7 @@ import mixedApi from '../db/mixedApi'
 import DetailItem from './DetailItem'
 import Generator from './Generator'
 import Icon from 'react-native-vector-icons/FontAwesome';
-import {showMessage, hideMessage} from "react-native-flash-message";
+import {showMessage} from "react-native-flash-message";
 import modes from '../consts/modes'
 import {Menu, MenuOptions, MenuOption, MenuTrigger} from 'react-native-popup-menu';
 import crypt from '../consts/crypt';
@@ -39,7 +37,7 @@ export default class Detail extends React.Component {
         const {isNew} = this.props.screenData;
 
         if (isNew) {
-            this.addRow();
+            this.addRow("Username");
             this.setState({isLoading: false})
         } else {
             this.getDetailsFromDB()
@@ -51,24 +49,22 @@ export default class Detail extends React.Component {
     }
 
     toMode = mode => {
-        this.setState({mode})
+        const obj = {mode};
+        if (mode === modes.read){
+            obj.hasMadeEdits = false
+        }
+        this.setState(obj)
     }
 
-    rmItemFromNewArr = obj => {
+    rmObj = obj => {
+        const arrName = obj.id
+            ? "savedArr"
+            : "newRowArr";
+
         this.setState({
-            newRowArr: this
-                .state
-                .newRowArr
+            [arrName]: this
+                .state[arrName]
                 .filter(x => x !== obj)
-        })
-    }
-
-    rmItemFromSavedArr = id => {
-        this.setState({
-            savedArr: this
-                .state
-                .savedArr
-                .filter(x => x.id !== id)
         })
     }
 
@@ -85,16 +81,14 @@ export default class Detail extends React.Component {
         }, callback)
     }
 
-    restoreBeforeEdit = () => {
+    restore = () => {
         const {beforeEditArr} = this.state;
         this.setState({savedArr: beforeEditArr, newRowArr: []})
     }
 
     getDetailsFromDB = () => {
         this.setState({isLoading: true})
-
         const {accountId} = this.props.screenData;
-
         const afterGettingDetailsDo = async savedArr => {
             let decryptedArr = [];
             if (savedArr.length > 0) {
@@ -106,54 +100,37 @@ export default class Detail extends React.Component {
         detailApi.getDetailByAccountId(accountId, afterGettingDetailsDo)
     }
 
-    handleChangeGeneric = (index, name, txt) => {
-        const {newRowArr} = this.state;
-        const cloneArr = [];
-        for (let i = 0; i < newRowArr.length; i++) {
-            const obj = newRowArr[i];
-            if (i === index) {
-                cloneArr.push({
+    doChange = (obj, name, txt) => {
+        const clone = [];
+        const arrName = obj.id
+            ? "savedArr"
+            : "newRowArr";
+        for (const x of this.state[arrName]) {
+            if (x === obj) {
+                clone.push({
                     ...obj,
-                    [name]: txt
+                    [name]: txt,
+                    modified: true
                 })
             } else {
-                cloneArr.push(obj)
+                clone.push(obj)
             }
         }
-        this.setState({hasMadeEdits: true, newRowArr: cloneArr})
+
+        this.setState({hasMadeEdits: true, [arrName]: clone})
     }
 
-    addRow = () => {
+    addRow = label => {
         this.setState({
             newRowArr: [
                 ...this.state.newRowArr, {
-                    key: "Username",
+                    key: typeof(label) === "string"
+                        ? label
+                        : "Password",
                     value: ""
                 }
             ],
             hasMadeEdits: true
-        })
-    }
-
-    showNewRows = newRowArr => {
-        if (newRowArr.length === 0) {
-            return null;
-        }
-
-        const {mode} = this.state;
-        const {isNew, accountTitle} = this.props.screenData;
-
-        return newRowArr.map((row, index) => {
-            return <DetailItem
-                accountTitle={accountTitle}
-                rmItemFromNewArr={this.rmItemFromNewArr}
-                rmItemFromSavedArr={this.rmItemFromSavedArr}
-                isNew={isNew}
-                mode={mode}
-                handleChange={this.handleChangeGeneric}
-                key={row.id || `i_${index}`}
-                index={index}
-                data={row}/>
         })
     }
 
@@ -167,9 +144,17 @@ export default class Detail extends React.Component {
         const {screenData} = this.props;
         const {accountId, accountTitle} = screenData;
 
+        const needSaveArr = newRowArr.concat(modifiedArr);
+
+        if (needSaveArr.length === 0) {
+            this.toMode(modes.read);
+            this.setState({newRowArr: [], isLoading: false})
+            return;
+        }
+
         const toSend = {
             accountId,
-            newRowArr: newRowArr.concat(modifiedArr)
+            newRowArr: needSaveArr
         }
 
         const saltSuffix = await salt.getSalt();
@@ -197,75 +182,41 @@ export default class Detail extends React.Component {
   ]
         */
 
-        if (toSend.newRowArr.length === 0) {
-            this.toMode(modes.read);
-            this.getDetailsFromDB();
-
-            this.setState({newRowArr: [], hasMadeEdits: false, isLoading: false})
-            //since 0 item no need to alert
-            return;
-        }
-
         const afterSaveDo = changedRowCount => {
             this.toMode(modes.read);
             this.getDetailsFromDB();
 
             this.setState({
                 newRowArr: [],
-                hasMadeEdits: false,
                 isLoading: false
             }, () => {
-
                 showMessage({
                     type: "success",
                     message: `${changedRowCount} item${changedRowCount > 1
                         ? "s"
                         : ""} under ${accountTitle} saved`
                 })
-
             });
         }
         detailApi.saveMany(toSend, afterSaveDo)
     }
 
-    modifyExisting = (detailId, name, txt) => {
-        const {savedArr} = this.state;
-        const cloneArr = [];
-        for (let i = 0; i < savedArr.length; i++) {
-            const obj = savedArr[i];
-            if (obj.id === detailId) {
-                cloneArr.push({
-                    ...obj,
-                    [name]: txt,
-                    modified: true
-                })
-            } else {
-                cloneArr.push(obj)
-            }
-        }
-        this.setState({hasMadeEdits: true, savedArr: cloneArr})
-    }
-
-    renderSavedRows = savedArr => {
-        if (savedArr.length === 0) {
-            return null;
+    renderRows = arr => {
+        if (arr.length === 0) {
+            return <Text>No details</Text>
         }
 
         const {mode} = this.state;
-
         const {accountTitle} = this.props.screenData;
 
-        return savedArr.map(row => {
+        return arr.map((row, index) => {
             return <DetailItem
+                key={row.id || `i_${index}`}
                 accountTitle={accountTitle}
-                rmItemFromNewArr={this.rmItemFromNewArr}
-                rmItemFromSavedArr={this.rmItemFromSavedArr}
-                isNew={false}
+                rmObj={this.rmObj}
                 mode={mode}
-                handleChange={this.handleChangeGeneric}
-                key={row.id}
-                data={row}
-                modifyExisting={this.modifyExisting}/>
+                handleChange={this.doChange}
+                data={row}/>
         })
     }
 
@@ -277,11 +228,11 @@ export default class Detail extends React.Component {
             return;
         }
 
-        Alert.alert('Giving up edits?', 'If so, data will be the same as before you clicked "Edit".', [
+        Alert.alert('Giving up edits?', 'Data will be the same as before you clicked "Edit".', [
             {
                 text: 'Give up edits',
                 onPress: () => {
-                    this.restoreBeforeEdit();
+                    this.restore();
                     this.toMode(modes.read);
                 }
             }, {
@@ -293,7 +244,7 @@ export default class Detail extends React.Component {
 
     confirmDeleteAccount = () => {
         const {screenData, toScreen} = this.props;
-        const {isNew, accountId, accountTitle} = screenData;
+        const {accountId, accountTitle} = screenData;
         const {savedArr} = this.state;
         const savedArrLen = savedArr.length;
 
@@ -321,7 +272,7 @@ export default class Detail extends React.Component {
     render() {
         const {generatorVisible, savedArr, newRowArr, mode, hasMadeEdits} = this.state;
         const {screenData, toScreen, lockApp} = this.props;
-        const {isNew, accountId, accountTitle} = screenData;
+        const {isNew, accountTitle} = screenData;
 
         return (
             <View
@@ -417,11 +368,7 @@ export default class Detail extends React.Component {
                 </View>
 
                 <ScrollView>
-
-                    {this.renderSavedRows(savedArr)}
-
-                    {this.showNewRows(newRowArr)}
-
+                    {this.renderRows(savedArr.concat(newRowArr))}
                 </ScrollView>
 
                 {mode === modes.edit && <View

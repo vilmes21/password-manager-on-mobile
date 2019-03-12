@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
     Clipboard,
@@ -37,7 +36,7 @@ export default class DetailItem extends React.Component {
     }
 
     confirmDeleteDetail = () => {
-        const {data, rmItemFromNewArr, rmItemFromSavedArr,accountTitle} = this.props;
+        const {data, rmObj, accountTitle} = this.props;
 
         /*
       data =  {
@@ -47,25 +46,23 @@ export default class DetailItem extends React.Component {
   "value": "asdfasfddddd",
 }
         */
-        
+
         const {key, id} = data;
 
         Alert.alert(`Delete ${key}?`, `Other items under ${accountTitle} will remain.`, [
             {
                 text: 'Delete',
                 onPress: () => {
-
                     const afterDeleteDo = () => {
-                        rmItemFromSavedArr(id);
+                        rmObj(data)
                     };
 
                     // it is currenlty in db
                     if (id) {
                         detailApi.deleteDetail(id, afterDeleteDo);
                     } else {
-                        rmItemFromNewArr(data);
+                        rmObj(data)
                     }
-
                 }
             }, {
                 text: 'No',
@@ -75,14 +72,7 @@ export default class DetailItem extends React.Component {
     }
 
     render() {
-        const {
-            mode,
-            data,
-            handleChange,
-            index,
-            modifyExisting,
-            isNew
-        } = this.props;
+        const {mode, data, handleChange} = this.props;
 
         const {visible} = this.state;
 
@@ -115,32 +105,17 @@ export default class DetailItem extends React.Component {
                                 editable={mode === modes.edit}
                                 autoFocus={mode === modes.edit}
                                 onChangeText={txt => {
-                                if (data.id) {
-                                    modifyExisting(data.id, "key", txt)
-                                } else {
-                                    handleChange(index, "key", txt)
-                                }
+                                handleChange(data, "key", txt)
                             }}
-                                placeholder="Label"/> 
-                                
-                                
-                                {
-                                    mode === modes.delete && 
-                                    
-                                    <TouchableOpacity
-                                    style={{
-                                        position: "relative",
-                                        top: 8
-                                    }}
-                                    onLongPress={this.confirmDeleteDetail}>
-                                    <Icon
-                               
-                                name="minus-circle"
-                                size={15}
-                                color="red"
-                                />
-                                </TouchableOpacity>
-                                }
+                                placeholder="Label"/> {mode === modes.delete && <TouchableOpacity
+                                style={{
+                                position: "relative",
+                                top: 8
+                            }}
+                                onLongPress={this.confirmDeleteDetail}>
+                                <Icon name="minus-circle" size={15} color="red"/>
+                            </TouchableOpacity>
+}
                         </View>
 
                         <View>
@@ -162,9 +137,7 @@ export default class DetailItem extends React.Component {
                         justifyContent: 'space-between'
                     }}>
 
-                        {
-                            mode === modes.read && 
-                        <View>
+                        {mode === modes.read && <View>
                             <Icon
                                 name="copy"
                                 size={30}
@@ -183,11 +156,7 @@ export default class DetailItem extends React.Component {
                                 value={data.value}
                                 editable={mode === modes.edit}
                                 onChangeText={txt => {
-                                if (data.id) {
-                                    modifyExisting(data.id, "value", txt)
-                                } else {
-                                    handleChange(index, "value", txt)
-                                }
+                                handleChange(data, "value", txt)
                             }}
                                 placeholder="Value"/>
                         </View>

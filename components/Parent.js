@@ -1,15 +1,9 @@
 import React from 'react';
-import {showMessage, hideMessage} from "react-native-flash-message";
 import {
     StyleSheet,
-    Text,
     View,
-    TextInput,
-    Button,
-    Clipboard
 } from 'react-native';
 import Vault from './Vault'
-import Icon from 'react-native-vector-icons/FontAwesome';
 import FlashMessage from "react-native-flash-message";
 import Locked from './Locked';
 import Add from './Add';
@@ -86,7 +80,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: 'center',
-        // alignItems: 'center',
     },
     content: {
         flexGrow: 1,
