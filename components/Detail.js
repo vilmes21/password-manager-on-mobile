@@ -298,6 +298,10 @@ export default class Detail extends React.Component {
                         </Text>
                     </View>
 
+                    {mode === modes.delete && <TouchableOpacity onLongPress={this.confirmDeleteAccount}>
+                        <Icon name="trash" size={15} color="red"/>
+                    </TouchableOpacity>}
+
                     {mode === modes.read && <DetailMenu backupBeforeEdit={this.backupBeforeEdit} toMode={this.toMode}/>
 }
 
@@ -325,10 +329,6 @@ export default class Detail extends React.Component {
                 }}
                     title="Done"/>
 }
-
-                {mode === modes.delete && <TouchableOpacity onLongPress={this.confirmDeleteAccount} style={styles.trash}>
-                    <Icon name="trash" size={15} color="red"/>
-                </TouchableOpacity>}
 
                 <Generator
                     toggleGenerator={this.toggleGenerator}
@@ -380,9 +380,5 @@ const styles = StyleSheet.create({
     cancelEdits: {
         padding: 20
     },
-    trash: {
-        position: "absolute",
-        bottom: 20,
-        left: 20
-    }
+   
 });

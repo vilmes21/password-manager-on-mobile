@@ -6,7 +6,8 @@ import {
     Text,
     TextInput,
     View,
-    Button
+    Button,
+    AsyncStorage
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {showMessage} from 'react-native-flash-message';
@@ -23,7 +24,8 @@ export default class Signup extends React.Component {
         email: "",
         password: "",
         confirmPW: "",
-        visible: false
+        visible: false,
+        isProcessing: false
     }
 
     handleChange = (txt, name) => {
@@ -39,6 +41,8 @@ export default class Signup extends React.Component {
             return;
         }
 
+        this.setState({isProcessing: true})
+
         const saltPrefix = pwGenerator(consts.saltPrefixLength, true);
         var hashedPW = bcrypt.hashSync(await saltPassword(password, saltPrefix), bcrypt.genSaltSync(consts.saltRounds));
 
@@ -46,6 +50,7 @@ export default class Signup extends React.Component {
             this
                 .props
                 .unlockApp(insertId);
+            AsyncStorage.setItem(consts.ratLoverUsername, email);
         };
 
         userApi.insert({
@@ -58,9 +63,9 @@ export default class Signup extends React.Component {
 
     render() {
         const {lockApp} = this.props;
-        const {email, password, confirmPW, visible} = this.state;
+        const {isProcessing, email, password, confirmPW, visible} = this.state;
 
-        const disableNext = isStringBad(email) || isStringBad(password) || isStringBad(confirmPW);
+        const disableNext = isProcessing || isStringBad(email) || isStringBad(password) || isStringBad(confirmPW);
 
         return (
             <View >

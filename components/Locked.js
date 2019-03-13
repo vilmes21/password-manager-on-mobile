@@ -6,23 +6,30 @@ import {
     View,
     TextInput,
     Button,
-    Clipboard
+    Clipboard,
+    AsyncStorage
 } from 'react-native';
-import Vault from './Vault'
 import Icon from 'react-native-vector-icons/FontAwesome';
-import FlashMessage from "react-native-flash-message";
 import screens from '../consts/screens';
 import bcrypt from '../consts/bcryptConfig'
 import userApi from '../db/userApi'
 import isStringBad from '../consts/isStringBad'
 import saltPassword from '../consts/saltPassword';
+import consts from '../consts/consts';
 
 export default class Locked extends React.Component {
     state = {
         masterPW: "",
         visible: false,
-        email: "test@test.com2",
+        email: "",
         isProcessing: false
+    }
+
+    componentDidMount = async() => {
+        const email = await AsyncStorage.getItem(consts.ratLoverUsername);
+        if (email) {
+            this.setState({email})
+        }
     }
 
     handleChange = (txt, name) => {
@@ -50,6 +57,7 @@ export default class Locked extends React.Component {
                 if (bcrypt.compareSync(saltedPW, user.password)) {
                     this.setState({masterPW: ""});
                     unlockApp(user.id);
+                    AsyncStorage.setItem(consts.ratLoverUsername, email);
                     return;
                 }
             }
