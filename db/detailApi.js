@@ -20,7 +20,7 @@ const saveMany = (objWithNewRows, callback) => {
     const fnName = " <saveMany fn> ";
     let changedRowCount = 0;
 
-    const {newRowArr, accountId} = objWithNewRows;
+    const {arr, accountId} = objWithNewRows;
 
     db.transaction(tx => {
 
@@ -48,7 +48,7 @@ const saveMany = (objWithNewRows, callback) => {
             });
         }
 
-        for (const obj of newRowArr) {
+        for (const obj of arr) {
             //only save when row has content
             if (obj.key && obj.value) {
                 changedRowCount++;

@@ -12,11 +12,11 @@ import screens from '../consts/screens'
 import detailApi from '../db/detailApi'
 import mixedApi from '../db/mixedApi'
 import DetailItem from './DetailItem'
+import DetailMenu from './DetailMenu'
 import Generator from './Generator'
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {showMessage} from "react-native-flash-message";
 import modes from '../consts/modes'
-import {Menu, MenuOptions, MenuOption, MenuTrigger} from 'react-native-popup-menu';
 import crypt from '../consts/crypt';
 import salt from '../db/salt';
 
@@ -25,8 +25,7 @@ export default class Detail extends React.Component {
         mode: this.props.screenData.isNew
             ? modes.edit
             : modes.read,
-        savedArr: [],
-        newRowArr: [],
+        arr: [],
         hasMadeEdits: false,
         beforeEditArr: [],
         generatorVisible: false,
@@ -49,29 +48,28 @@ export default class Detail extends React.Component {
     }
 
     toMode = mode => {
-        const obj = {mode};
-        if (mode === modes.read){
+        const obj = {
+            mode
+        };
+        if (mode === modes.read) {
             obj.hasMadeEdits = false
         }
         this.setState(obj)
     }
 
     rmObj = obj => {
-        const arrName = obj.id
-            ? "savedArr"
-            : "newRowArr";
-
         this.setState({
-            [arrName]: this
-                .state[arrName]
+            arr: this
+                .state
+                .arr
                 .filter(x => x !== obj)
         })
     }
 
     backupBeforeEdit = callback => {
         const beforeEditArr = [];
-        const {savedArr} = this.state;
-        for (const obj of savedArr) {
+        const {arr} = this.state;
+        for (const obj of arr) {
             beforeEditArr.push({
                 ...obj
             });
@@ -82,48 +80,51 @@ export default class Detail extends React.Component {
     }
 
     restore = () => {
-        const {beforeEditArr} = this.state;
-        this.setState({savedArr: beforeEditArr, newRowArr: []})
+        this.setState({arr: this.state.beforeEditArr})
     }
 
     getDetailsFromDB = () => {
         this.setState({isLoading: true})
         const {accountId} = this.props.screenData;
-        const afterGettingDetailsDo = async savedArr => {
+        const afterGettingDetailsDo = async arr => {
             let decryptedArr = [];
-            if (savedArr.length > 0) {
-                decryptedArr = await crypt.deDetails(savedArr);
+            if (arr.length > 0) {
+                decryptedArr = await crypt.deDetails(arr);
             }
 
-            this.setState({savedArr: decryptedArr, isLoading: false})
+            this.setState({arr: decryptedArr, isLoading: false})
         }
         detailApi.getDetailByAccountId(accountId, afterGettingDetailsDo)
     }
 
-    doChange = (obj, name, txt) => {
+    doChange = (id, index, name, txt) => {
         const clone = [];
-        const arrName = obj.id
-            ? "savedArr"
-            : "newRowArr";
-        for (const x of this.state[arrName]) {
-            if (x === obj) {
+        const {arr} = this.state;
+
+        const decider = id
+            ? (i, x) => x.id === id
+            : (i, x) => index === i;
+
+        for (let i = 0; i < arr.length; i++) {
+            const x = arr[i];
+            if (decider(i, x)) {
                 clone.push({
-                    ...obj,
+                    ...x,
                     [name]: txt,
                     modified: true
                 })
             } else {
-                clone.push(obj)
+                clone.push(x)
             }
         }
 
-        this.setState({hasMadeEdits: true, [arrName]: clone})
+        this.setState({hasMadeEdits: true, arr: clone})
     }
 
     addRow = label => {
         this.setState({
-            newRowArr: [
-                ...this.state.newRowArr, {
+            arr: [
+                ...this.state.arr, {
                     key: typeof(label) === "string"
                         ? label
                         : "Password",
@@ -136,25 +137,22 @@ export default class Detail extends React.Component {
 
     saveRows = async() => {
         this.setState({isLoading: true});
-        const {newRowArr, savedArr} = this.state;
-
-        const modifiedArr = savedArr.length > 0
-            ? savedArr.filter(x => x.modified)
+        const {arr} = this.state;
+        const modifiedArr = arr.length > 0
+            ? arr.filter(x => x.modified)
             : [];
         const {screenData} = this.props;
         const {accountId, accountTitle} = screenData;
 
-        const needSaveArr = newRowArr.concat(modifiedArr);
-
-        if (needSaveArr.length === 0) {
+        if (modifiedArr.length === 0) {
             this.toMode(modes.read);
-            this.setState({newRowArr: [], isLoading: false})
+            this.setState({isLoading: false})
             return;
         }
 
         const toSend = {
             accountId,
-            newRowArr: needSaveArr
+            arr: modifiedArr
         }
 
         const saltSuffix = await salt.getSalt();
@@ -163,7 +161,7 @@ export default class Detail extends React.Component {
             return;
         }
 
-        toSend.newRowArr = crypt.enDetails(toSend.newRowArr, saltSuffix);
+        toSend.arr = crypt.enDetails(toSend.arr, saltSuffix);
 
         /*
         toSendShape=[
@@ -187,7 +185,6 @@ export default class Detail extends React.Component {
             this.getDetailsFromDB();
 
             this.setState({
-                newRowArr: [],
                 isLoading: false
             }, () => {
                 showMessage({
@@ -210,8 +207,12 @@ export default class Detail extends React.Component {
         const {accountTitle} = this.props.screenData;
 
         return arr.map((row, index) => {
+
             return <DetailItem
-                key={row.id || `i_${index}`}
+                key={row.id
+                ? row.id
+                : `i_${index}`}
+                index={index}
                 accountTitle={accountTitle}
                 rmObj={this.rmObj}
                 mode={mode}
@@ -245,12 +246,12 @@ export default class Detail extends React.Component {
     confirmDeleteAccount = () => {
         const {screenData, toScreen} = this.props;
         const {accountId, accountTitle} = screenData;
-        const {savedArr} = this.state;
-        const savedArrLen = savedArr.length;
+        const {arr} = this.state;
+        const arrLen = arr.length;
 
-        Alert.alert(`Delete ${accountTitle}?`, `${savedArrLen > 1
+        Alert.alert(`Delete ${accountTitle}?`, `${arrLen > 1
             ? "All "
-            : ""}${savedArrLen} item ${savedArr > 1
+            : ""}${arrLen} item ${arrLen > 1
                 ? "s"
                 : ""} under ${accountTitle} will be deleted.`, [
             {
@@ -270,25 +271,13 @@ export default class Detail extends React.Component {
     }
 
     render() {
-        const {generatorVisible, savedArr, newRowArr, mode, hasMadeEdits} = this.state;
+        const {generatorVisible, arr, mode, hasMadeEdits} = this.state;
         const {screenData, toScreen, lockApp} = this.props;
         const {isNew, accountTitle} = screenData;
 
         return (
-            <View
-                style={{
-                flex: 1,
-                flexDirection: "column",
-                alignContent: "flex-start"
-            }}>
-
-                <View
-                    style={{
-                    display: "flex",
-                    flexDirection: 'row',
-                    justifyContent: 'space-between'
-                }}>
-
+            <View style={styles.colStart}>
+                <View style={styles.rowSpaceBtw}>
                     {mode === modes.edit || <Icon
                         name="home"
                         size={30}
@@ -297,93 +286,33 @@ export default class Detail extends React.Component {
                         toScreen(screens.all)
                     }}/>}
 
-                    {mode === modes.edit && < Button title = "Generator" onPress = {
-                        () => {
-                            this.toggleGenerator(true)
-                        }
-                    } />}
+                    {mode === modes.edit && <Button title="Generator" onPress= { () => { this.toggleGenerator(true) } }/>}
 
                     {mode === modes.edit || <Icon name="lock" size={30} color="grey" onPress={lockApp}/>}
-
                 </View>
 
-                <View
-                    style={{
-                    paddingTop: 20,
-                    paddingBottom: 20,
-                    display: "flex",
-                    flexDirection: 'row',
-                    justifyContent: 'center'
-                }}>
-
+                <View style={styles.rowCenter}>
                     <View>
-                        <Text
-                            style={{
-                            paddingRight: 20,
-                            fontWeight: "bold",
-                            fontSize: 25
-                        }}>
+                        <Text style={styles.title}>
                             {accountTitle}
                         </Text>
                     </View>
 
-                    {mode === modes.read && <View>
-
-                        <Menu>
-                            <MenuTrigger>
-                                <Icon name="ellipsis-v" size={30} color="grey"/>
-                            </MenuTrigger>
-                            <MenuOptions>
-                                <MenuOption
-                                    style={styles.menuOption}
-                                    onSelect={() => {
-                                    this.backupBeforeEdit(() => {
-                                        this.toMode(modes.edit);
-                                    });
-                                }}>
-                                    <Text
-                                        style={{
-                                        fontSize: 20
-                                    }}>Edit mode</Text>
-                                </MenuOption>
-
-                                <MenuOption
-                                    style={styles.menuOption}
-                                    onSelect={() => {
-                                    this.toMode(modes.delete);
-                                }}>
-                                    <Text
-                                        style={{
-                                        color: 'red',
-                                        fontSize: 20
-                                    }}>Deletion mode</Text>
-                                </MenuOption>
-
-                            </MenuOptions>
-                        </Menu>
-
-                    </View>
+                    {mode === modes.read && <DetailMenu backupBeforeEdit={this.backupBeforeEdit} toMode={this.toMode}/>
 }
 
                 </View>
 
                 <ScrollView>
-                    {this.renderRows(savedArr.concat(newRowArr))}
+                    {this.renderRows(arr)}
                 </ScrollView>
 
-                {mode === modes.edit && <View
-                    style={{
-                    display: "flex",
-                    flexDirection: 'row',
-                    justifyContent: 'center'
-                }}>
+                {mode === modes.edit && <View style={styles.addRow}>
                     <Icon name="plus" size={30} color="grey" onPress={this.addRow}/>
                 </View>
 }
 
-                <View style={{
-                    padding: 20
-                }}></View>
+                <View style={styles.cancelEdits}></View>
 
                 {mode === modes.edit && !isNew && <Button onPress={this.cancelEdits} title="Cancel edits"/>
 }
@@ -397,13 +326,7 @@ export default class Detail extends React.Component {
                     title="Done"/>
 }
 
-                {mode === modes.delete && <TouchableOpacity
-                    onLongPress={this.confirmDeleteAccount}
-                    style={{
-                    position: "absolute",
-                    bottom: 20,
-                    left: 20
-                }}>
+                {mode === modes.delete && <TouchableOpacity onLongPress={this.confirmDeleteAccount} style={styles.trash}>
                     <Icon name="trash" size={15} color="red"/>
                 </TouchableOpacity>}
 
@@ -422,5 +345,44 @@ const styles = StyleSheet.create({
         paddingLeft: 20,
         paddingRight: 20,
         fontSize: 70
+    },
+    colStart: {
+        flex: 1,
+        flexDirection: "column",
+        alignContent: "flex-start"
+
+    },
+    rowSpaceBtw: {
+        display: "flex",
+        flexDirection: 'row',
+        justifyContent: 'space-between'
+    },
+    rowCenter: {
+        paddingTop: 20,
+        paddingBottom: 20,
+        display: "flex",
+        flexDirection: 'row',
+        justifyContent: 'center'
+    },
+    title: {
+        paddingRight: 20,
+        fontWeight: "bold",
+        fontSize: 25
+    },
+    modeOption: {
+        fontSize: 20
+    },
+    addRow: {
+        display: "flex",
+        flexDirection: 'row',
+        justifyContent: 'center'
+    },
+    cancelEdits: {
+        padding: 20
+    },
+    trash: {
+        position: "absolute",
+        bottom: 20,
+        left: 20
     }
 });

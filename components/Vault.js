@@ -37,7 +37,7 @@ export default class Vault extends React.Component {
 
                     <Menu>
                         <MenuTrigger>
-                            <Icon name="ellipsis-v" size={30} color="grey"/>
+                            <Icon style={styles.ell} name="ellipsis-v" size={30} color="grey"/>
                         </MenuTrigger>
                         <MenuOptions>
                             <MenuOption
@@ -107,5 +107,9 @@ const styles = StyleSheet.create({
         paddingLeft: 20,
         paddingRight: 20,
         fontSize: 70
+    },
+    ell: {
+        paddingLeft: 10,
+        paddingRight: 20
     }
 });

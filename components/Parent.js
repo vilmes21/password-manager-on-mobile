@@ -1,8 +1,5 @@
 import React from 'react';
-import {
-    StyleSheet,
-    View,
-} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import Vault from './Vault'
 import FlashMessage from "react-native-flash-message";
 import Locked from './Locked';
@@ -38,25 +35,28 @@ export default class Parent extends React.Component {
         let page = null;
         if (userId < 1) {
             page = screen === screens.signup
-                ? <Signup lockApp={this.lockApp} toScreen={this.toScreen} unlockApp={this.unlockApp}/>
+                ? <Signup
+                        lockApp={this.lockApp}
+                        toScreen={this.toScreen}
+                        unlockApp={this.unlockApp}/>
                 : <Locked toScreen={this.toScreen} unlockApp={this.unlockApp}/>;
         } else {
 
             switch (screen) {
                 case screens.all:
-                    page = <Vault 
-                    userId={userId}
-                    lockApp={this.lockApp} toScreen={this.toScreen}/>;
+                    page = <Vault userId={userId} lockApp={this.lockApp} toScreen={this.toScreen}/>;
                     break;
                 case screens.detail:
-                    page = <Detail toScreen={this.toScreen} screenData={screenData}
-                    lockApp={this.lockApp}/>
+                    page = <Detail
+                        toScreen={this.toScreen}
+                        screenData={screenData}
+                        lockApp={this.lockApp}/>
                     break;
                 case screens.add:
                     page = <Add userId={userId} toScreen={this.toScreen}/>;
                     break;
-                    case screens.changeMaster:
-                    page = <ChangeMaster userId={userId} lockApp={this.lockApp} />;
+                case screens.changeMaster:
+                    page = <ChangeMaster userId={userId} lockApp={this.lockApp} toScreen={this.toScreen}/>;
                     break;
                 default:
                     page = <Locked/>;
@@ -68,7 +68,7 @@ export default class Parent extends React.Component {
             <View style={styles.container}>
                 <View style={styles.content}>
                     {page}
-                    
+
                 </View>
                 <FlashMessage position="bottom"/>
             </View>
@@ -79,7 +79,7 @@ export default class Parent extends React.Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
+        justifyContent: 'center'
     },
     content: {
         flexGrow: 1,

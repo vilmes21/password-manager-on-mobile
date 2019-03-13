@@ -1,13 +1,9 @@
 import React from 'react';
-import {
-    Text,
-    TextInput,
-    View,
-    Button
-} from 'react-native';
+import {Text, TextInput, View, Button} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {showMessage} from "react-native-flash-message";
 import userApi from '../db/userApi';
+import screens from '../consts/screens'
 
 export default class ChangeMaster extends React.Component {
 
@@ -22,11 +18,7 @@ export default class ChangeMaster extends React.Component {
     }
 
     submit = () => {
-        const {
-            current,
-            neww,
-            newwAgain
-        } = this.state;
+        const {current, neww, newwAgain} = this.state;
 
         const {lockApp, userId} = this.props;
 
@@ -69,6 +61,8 @@ export default class ChangeMaster extends React.Component {
 
     render() {
 
+        const {toScreen} = this.props;
+
         const {
             current,
             neww,
@@ -83,6 +77,8 @@ export default class ChangeMaster extends React.Component {
 
         return (
             <View>
+                <Button title="Cancel" onPress= { () => { toScreen(screens.all) } }/>
+
                 <Text
                     style={{
                     paddingRight: 20,

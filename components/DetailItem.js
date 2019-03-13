@@ -72,9 +72,20 @@ export default class DetailItem extends React.Component {
     }
 
     render() {
-        const {mode, data, handleChange} = this.props;
-
+        const {mode, data, handleChange,index} = this.props;
+        const {id}=data;
         const {visible} = this.state;
+
+        const minusCircle = mode === modes.delete
+            ? <TouchableOpacity
+                    style={{
+                    position: "relative",
+                    top: 8
+                }}
+                    onLongPress={this.confirmDeleteDetail}>
+                    <Icon name="minus-circle" size={15} color="red"/>
+                </TouchableOpacity>
+            : null;
 
         return (
             <View style={{
@@ -82,40 +93,20 @@ export default class DetailItem extends React.Component {
             }}>
 
                 <View>
-                    <View
-                        style={{
-                        display: "flex",
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                        paddingBottom: 10
-                    }}>
-                        <View
-                            style={{
-                            display: "flex",
-                            flexDirection: 'row',
-                            justifyContent: 'flex-start'
-                        }}>
+                    <View style={styles.out}>
+                        <View style={styles.rowStart}>
                             <TextInput
-                                style={{
-                                fontSize: 25,
-                                paddingRight: 30
-                            }}
+                                style={styles.input}
                                 name="key"
                                 value={data.key}
                                 editable={mode === modes.edit}
                                 autoFocus={mode === modes.edit}
                                 onChangeText={txt => {
-                                handleChange(data, "key", txt)
+                                handleChange(id, index, "key", txt)
                             }}
-                                placeholder="Label"/> {mode === modes.delete && <TouchableOpacity
-                                style={{
-                                position: "relative",
-                                top: 8
-                            }}
-                                onLongPress={this.confirmDeleteDetail}>
-                                <Icon name="minus-circle" size={15} color="red"/>
-                            </TouchableOpacity>
-}
+                                placeholder="Label"/>
+
+                            <View>{minusCircle}</View>
                         </View>
 
                         <View>
@@ -130,12 +121,7 @@ export default class DetailItem extends React.Component {
 
                     </View>
 
-                    <View
-                        style={{
-                        display: "flex",
-                        flexDirection: 'row',
-                        justifyContent: 'space-between'
-                    }}>
+                    <View style={styles.rowSpaceBtw}>
 
                         {mode === modes.read && <View>
                             <Icon
@@ -156,20 +142,14 @@ export default class DetailItem extends React.Component {
                                 value={data.value}
                                 editable={mode === modes.edit}
                                 onChangeText={txt => {
-                                handleChange(data, "value", txt)
+                                handleChange(id, index, "value", txt)
                             }}
                                 placeholder="Value"/>
                         </View>
 
                     </View>
 
-                    <View
-                        style={{
-                        borderBottomColor: 'lightgrey',
-                        borderBottomWidth: 1,
-                        marginTop: 20,
-                        marginBottom: 20
-                    }}/>
+                    <View style={styles.pad}/>
 
                     <FlashMessage position="top" ref="detailItemFlash"/>
                 </View>
@@ -177,3 +157,32 @@ export default class DetailItem extends React.Component {
         );
     }
 }
+
+const styles = StyleSheet.create({
+    out: {
+        display: "flex",
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingBottom: 10
+    },
+    rowStart: {
+        display: "flex",
+        flexDirection: 'row',
+        justifyContent: 'flex-start'
+    },
+    input: {
+        fontSize: 25,
+        paddingRight: 30
+    },
+    rowSpaceBtw: {
+        display: "flex",
+        flexDirection: 'row',
+        justifyContent: 'space-between'
+    },
+    pad: {
+        borderBottomColor: 'lightgrey',
+        borderBottomWidth: 1,
+        marginTop: 20,
+        marginBottom: 20
+    }
+});
